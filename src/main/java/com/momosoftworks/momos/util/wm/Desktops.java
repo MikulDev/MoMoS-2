@@ -21,6 +21,7 @@ public class Desktops
 
     public static void switchTo(String desktop)
     {   CommandHelper.execute("bspc", "desktop", desktop, "-f");
+        CommandHelper.execute("bspc", "node", "-f", "last");
     }
 
     public static String getFocused()

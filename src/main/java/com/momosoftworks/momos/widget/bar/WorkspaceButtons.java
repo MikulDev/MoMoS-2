@@ -2,6 +2,7 @@ package com.momosoftworks.momos.widget.bar;
 
 import com.momosoftworks.momos.util.wm.CommandHelper;
 import com.momosoftworks.momos.util.wm.Desktops;
+import com.momosoftworks.momos.util.wm.Monitors;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,6 +20,7 @@ import java.util.concurrent.Executors;
 public class WorkspaceButtons extends HBox
 {
     private final String monitor;
+    private volatile String focusedDesktop;
     private final Map<String, TagComponents> tagComponents = new HashMap<>();
     private final ExecutorService executor;
     private volatile boolean running = true;
@@ -35,6 +37,7 @@ public class WorkspaceButtons extends HBox
             return t;
         });
 
+        this.focusedDesktop = Desktops.getFocused(monitor);
         initializeTags();
         startEventListener();
     }
@@ -81,11 +84,22 @@ public class WorkspaceButtons extends HBox
         executor.submit(() -> {
             try
             {
-                BufferedReader reader = CommandHelper.executeAndRead("bspc", "subscribe", "desktop", "node_transfer", "node_add", "node_remove");
+                BufferedReader reader = CommandHelper.executeAndRead("bspc", "subscribe", "desktop_focus", "node_transfer", "node_add", "node_remove");
                 String line;
 
                 while (running && (line = reader.readLine()) != null)
-                {   Platform.runLater(this::updateState);
+                {
+                    String[] parts = line.split(" ");
+
+                    if (parts[0].equals("desktop_focus"))
+                    {
+                        if (!Objects.equals(monitor, Monitors.fromID(parts[1]))) continue;
+                        String desktop = Desktops.fromID(parts[2]);
+                        if (desktop != null && !desktop.isEmpty())
+                            focusedDesktop = desktop;
+                    }
+
+                    Platform.runLater(this::updateState);
                 }
             }
             catch (Exception e)
@@ -98,7 +112,7 @@ public class WorkspaceButtons extends HBox
     {
         try
         {
-            String focusedDesktop = Desktops.getFocused(monitor);
+            String currentFocus = focusedDesktop;
             List<String> occupiedDesktops = Desktops.getAll(null, Desktops.Flag.OCCUPIED);
             List<String> urgentDesktops = Desktops.getAll(null, Desktops.Flag.URGENT);
 
@@ -110,7 +124,7 @@ public class WorkspaceButtons extends HBox
                 Label label = components.label;
                 Circle indicator = components.indicator;
 
-                boolean focused  = desktop.equals(focusedDesktop);
+                boolean focused  = desktop.equals(currentFocus);
                 boolean occupied = occupiedDesktops.contains(desktop);
                 boolean urgent   = urgentDesktops.contains(desktop);
 
