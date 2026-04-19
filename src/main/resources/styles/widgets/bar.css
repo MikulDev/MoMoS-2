@@ -1,0 +1,148 @@
+/*******************************************************************************
+ * Color Variables                                                              *
+ ******************************************************************************/
+
+* {
+    -momos-white: rgba(255, 255, 255, 0.87);
+    -momos-white-20: rgba(255, 255, 255, 0.2);
+    -momos-white-44: rgba(255, 255, 255, 0.44);
+    -momos-light-gray-b0: rgba(176, 176, 176, 0.87);
+    -momos-selected-80: rgba(128, 128, 255, 0.5);
+}
+
+/*******************************************************************************
+ * Taskbar / Panel                                                              *
+ ******************************************************************************/
+
+.taskbar {
+    -fx-background-color: rgba(19, 19, 19, 0.855);
+    -fx-padding: 4px 8px;
+}
+
+/* Tag/workspace buttons */
+.tag-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 4px;
+    -fx-border-color: -momos-white-20;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-pref-height: 42px;
+    -fx-cursor: hand;
+}
+
+.tag-button:hover {
+    -fx-border-color: -momos-white-44;
+}
+
+.tag-button.focused {
+    -fx-background-color: rgba(159, 159, 159, 0.376);
+    -fx-border-color: -momos-white-20;
+}
+
+.tag-button.urgent.focused {
+    -fx-background-color: linear-gradient(from 50% 0% to 50% 100%, rgba(159, 159, 159, 0.376), -momos-selected-60);
+}
+.tag-button.urgent {
+    -fx-background-color: linear-gradient(from 50% 50% to 50% 100%, transparent, -momos-selected-60);
+}
+
+.tag-button-text {
+    -fx-text-fill: -momos-white-88;
+    -fx-alignment: center;
+    -fx-font-size: 15px;
+}
+
+.tag-button-text.focused {
+    -fx-text-fill: -momos-white;
+}
+
+.divider {
+    -fx-fill: -momos-white-20;
+}
+
+.tag-indicator {
+    -fx-fill: transparent;
+    -fx-stroke: #999999;
+    -fx-stroke-width: 1;
+    -fx-stroke-type: inside;
+    -fx-radius: 3.5px;
+}
+
+.tag-indicator-selected {
+    -fx-fill: #dddddd;
+    -fx-stroke: transparent;
+    -fx-stroke-width: 1;
+    -fx-radius: 3.5px;
+}
+
+.task-button {
+    -fx-background-color: -momos-gray-40;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-padding: 4px 8px;
+    -fx-pref-width: 300px;
+    -fx-cursor: hand;
+}
+
+.task-button:hover,
+.task-button.focused {
+    -fx-background-color: rgba(159, 159, 159, 0.376);
+    -fx-border-color: -momos-white-20;
+    -fx-text-fill: -momos-white;
+}
+
+.task-button.minimized {
+    -fx-background-color: rgba(19, 19, 19, 0.627);
+    -fx-border-color: rgba(89, 89, 89, 0.565);
+    -fx-text-fill: -momos-light-gray-b0;
+}
+
+.task-button.urgent {
+    -fx-background-color: -momos-selected-80;
+}
+
+.task-button-icon {
+    -fx-fit-width: 28;
+}
+
+.task-button-line {
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 12px;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.task-button-line.focused {
+    -fx-text-fill: -momos-white;
+}
+
+.clock {
+    -fx-text-fill: -momos-white;
+    -fx-font-size: 12px;
+}
+
+.clock-date {
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 11px;
+}
+
+.clock-time {
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 14px;
+}
+
+/* Monitor label */
+.monitor-label {
+    -fx-text-fill: rgba(255, 255, 255, 0.5);
+    -fx-font-size: 11px;
+    -fx-padding: 0 8px 0 0;
+}
+
+/* Separator between monitors */
+.monitor-separator {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-min-width: 1px;
+    -fx-pref-width: 1px;
+    -fx-margin: 4px 12px;
+}

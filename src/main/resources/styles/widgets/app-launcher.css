@@ -1,0 +1,119 @@
+.app-launcher {
+    -fx-background-color: -momos-pitch-black-dd;
+    -fx-background-radius: 15px;
+    -fx-border-color: -momos-gray;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-padding: 16px;
+}
+
+.search-box {
+    -fx-background-color: -momos-pitch-black-80;
+    -fx-background-radius: 12px;
+    -fx-border-color: -momos-gray;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-padding: 5px 7px;
+}
+
+.search-box.focused {
+    -fx-border-color: -momos-selected;
+}
+
+.search-icon {
+    -fx-opacity: 0.6;
+}
+
+.search-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: -momos-white-aa;
+    -fx-prompt-text-fill: -momos-light-gray-b0;
+    -fx-font-size: 14px;
+}
+
+/* Section headers */
+.section-header {
+    -fx-text-fill: -momos-white-88;
+    -fx-font-size: 10px;
+    -fx-padding: 8px 4px 4px 4px;
+}
+
+/* App entry row */
+.app-entry {
+    -fx-background-color: -momos-dark-gray-dd;
+    -fx-background-radius: 8px;
+    -fx-border-color: -momos-light-gray-33;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+}
+
+.app-entry.hovered,
+.app-entry.focused {
+    -fx-background-color: -momos-gray-88;
+    -fx-border-color: -momos-white-55;
+}
+
+.app-entry-name {
+    -fx-text-fill: -momos-light-gray-d0;
+    -fx-font-size: 14px;
+}
+
+.app-entry:hover .app-name,
+.app-entry.focused .app-name {
+    -fx-text-fill: -momos-white;
+}
+
+.app-entry .app-icon {
+    -fx-background-color: transparent;
+}
+
+/* Sudo mode styling */
+.app-entry.sudo-mode {
+    -fx-background-color: -momos-sudo-bg;
+    -fx-border-color: -momos-sudo-border;
+}
+
+/* Pinned apps section */
+.pinned-app {
+    -fx-background-color: -momos-dark-gray-cc;
+    -fx-background-radius: 8px;
+    -fx-border-color: -momos-light-gray-33;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-padding: 8px;
+    -fx-cursor: hand;
+    -fx-alignment: center;
+}
+
+.pinned-app:hover,
+.pinned-app.hovered,
+.pinned-app.focused {
+    -fx-background-color: -momos-gray-88;
+    -fx-border-color: -momos-white-55;
+}
+
+/* App entry option buttons (pin, etc.) */
+.app-entry-option {
+    -fx-background-color: -momos-dark-gray-cc;
+    -fx-background-radius: 4px;
+    -fx-border-color: transparent;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-padding: 4px;
+    -fx-cursor: hand;
+}
+
+.app-entry-option:hover {
+    -fx-background-color: -momos-gray-88;
+    -fx-border-color: -momos-white-55;
+}
+
+.separator {
+    -fx-background-color: -momos-white-20;
+    -fx-pref-height: 1px;
+    -fx-max-height: 1px;
+    -fx-min-height: 1px;
+    -fx-margin: 8px 0;
+}
