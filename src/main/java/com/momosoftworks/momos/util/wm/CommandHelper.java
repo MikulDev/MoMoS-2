@@ -1,6 +1,7 @@
 package com.momosoftworks.momos.util.wm;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 
 public class CommandHelper
@@ -38,5 +39,24 @@ public class CommandHelper
         {   e.printStackTrace();
             return null;
         }
+    }
+
+    public static void launchProgram(String exec)
+    {
+        String cleaned = exec.replaceAll("%[UuFfDdNnickvm]", "").trim();
+        try
+        {
+            StringBuilder shellCmd = new StringBuilder();
+            for (String part : cleaned.split("\\s+"))
+            {   shellCmd.append("'").append(part.replace("'", "'\\''")).append("' ");
+            }
+            shellCmd.append("&");
+            new ProcessBuilder("bash", "-c", shellCmd.toString())
+                    .directory(new File(System.getenv("HOME")))
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .redirectError(ProcessBuilder.Redirect.DISCARD)
+                    .start();
+        }
+        catch (Exception e) { e.printStackTrace(); }
     }
 }

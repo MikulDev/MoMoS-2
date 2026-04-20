@@ -1,5 +1,6 @@
 package com.momosoftworks.momos.widget.app_launcher;
 
+import com.momosoftworks.momos.util.wm.CommandHelper;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
@@ -45,7 +46,7 @@ public abstract class AppButton extends Pane
     protected void onMouseExit() {}
 
     protected void onClicked(MouseEvent event)
-    {   this.parent.launchApp(app.exec());
+    {   CommandHelper.launchProgram(app.exec());
         this.parent.hide();
     }
 }

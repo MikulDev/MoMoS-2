@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.momosoftworks.momos.MomosApp;
 import com.momosoftworks.momos.util.Identifier;
 import com.momosoftworks.momos.util.image.ImageHelper;
+import com.momosoftworks.momos.util.wm.CommandHelper;
 import com.momosoftworks.momos.util.wm.Monitors;
 import com.momosoftworks.momos.util.x11.X11KeyGrabber;
 import com.momosoftworks.momos.widget.PopupWidget;
@@ -287,22 +288,6 @@ public class AppLauncherWidget extends PopupWidget
         this.savePinnedApps();
     }
 
-    public void launchApp(String exec)
-    {
-        String cleaned = exec.replaceAll("%[UuFfDdNnickvm]", "").trim();
-        try
-        {   // Shell-quote each argument and run via "bash -c 'cmd &'" so bash exits
-            // immediately and the child is re-parented to init, fully detaching it
-            // from MoMoS's process tree.
-            StringBuilder shellCmd = new StringBuilder();
-            for (String part : cleaned.split("\\s+"))
-                shellCmd.append("'").append(part.replace("'", "'\\''")).append("' ");
-            shellCmd.append("&");
-            new ProcessBuilder("bash", "-c", shellCmd.toString()).start();
-        }
-        catch (Exception e) { e.printStackTrace(); }
-    }
-
     private String getIconPath(String icon)
     {
         File file = new File(icon);
@@ -431,7 +416,7 @@ public class AppLauncherWidget extends PopupWidget
         int idx = (selectedAppIndex >= 0 && selectedAppIndex < visible.size()) ? selectedAppIndex : 0;
         if (idx < visible.size() && visible.get(idx) instanceof AppButton btn)
         {
-            this.launchApp(btn.app.exec());
+            CommandHelper.launchProgram(btn.app.exec());
             this.hide();
         }
     }
@@ -579,7 +564,7 @@ public class AppLauncherWidget extends PopupWidget
                 List<PinnedAppButton> pinned = getPinnedButtons();
                 if (selectedAppIndex >= 0 && selectedAppIndex < pinned.size())
                 {
-                    this.launchApp(pinned.get(selectedAppIndex).app.exec());
+                    CommandHelper.launchProgram(pinned.get(selectedAppIndex).app.exec());
                     this.hide();
                 }
             }
