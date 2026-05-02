@@ -40,6 +40,7 @@ public class MomosApp extends Application
 
         WidgetRegistry.BAR_LEFT.get().show();
         WidgetRegistry.BAR_RIGHT.get().show();
+        WidgetRegistry.APP_MENU.get().load();
     }
 
     @Override

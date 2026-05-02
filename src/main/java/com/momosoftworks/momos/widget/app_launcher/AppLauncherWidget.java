@@ -571,12 +571,17 @@ public class AppLauncherWidget extends PopupWidget
     {   return lines.stream().filter(l -> l.startsWith(property)).findFirst().map(l -> l.substring(property.length())).orElse(null);
     }
 
+    public void load()
+    {
+        this.loadApplications();
+        this.loadPinnedApps();
+    }
+
     @Override
     public void show()
     {
         this.mouseInteractionEnabled = false;
-        this.loadApplications();
-        this.loadPinnedApps();
+        this.load();
         this.startGrabber();
         Thread.ofVirtual().start(() ->
         {
