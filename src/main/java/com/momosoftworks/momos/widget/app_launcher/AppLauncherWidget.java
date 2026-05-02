@@ -10,6 +10,7 @@ import com.momosoftworks.momos.util.wm.Monitors;
 import com.momosoftworks.momos.util.x11.X11KeyGrabber;
 import com.momosoftworks.momos.widget.PopupWidget;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -97,8 +98,11 @@ public class AppLauncherWidget extends PopupWidget
         this.appEntriesPane = new ScrollPane();
         appEntriesPane.setContent(this.appsList);
         appEntriesPane.setFitToWidth(true);
+        appEntriesPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        appEntriesPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         appEntriesPane.setOnScroll(e -> mouseInteractionEnabled = true);
         appEntriesPane.setMinHeight(0);
+        appEntriesPane.setPadding(new Insets(0, -4, 0, 0));
         VBox.setVgrow(appEntriesPane, Priority.ALWAYS);
 
         pinnedAppsPane.setMinHeight(Region.USE_PREF_SIZE);

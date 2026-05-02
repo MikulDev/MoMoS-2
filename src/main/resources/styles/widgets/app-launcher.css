@@ -31,6 +31,14 @@
     -fx-font-size: 14px;
 }
 
+.apps-list {
+    -fx-padding: 0 6px 0 0;
+}
+
+.app-launcher .scroll-bar {
+    -fx-padding: 0 2px;
+}
+
 /* Section headers */
 .section-header {
     -fx-text-fill: -momos-white-88;
