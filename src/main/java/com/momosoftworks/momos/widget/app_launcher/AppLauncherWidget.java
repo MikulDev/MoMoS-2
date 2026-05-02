@@ -27,7 +27,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -159,7 +158,7 @@ public class AppLauncherWidget extends PopupWidget
                         Image img = null;
                         if (icon != null)
                         {
-                            iconPath = getIconPath(icon);
+                            iconPath = ImageHelper.getIconPath(icon);
                             if (iconPath != null)
                             {   img = ImageHelper.getIcon(iconPath, 64);
                             }
@@ -290,47 +289,6 @@ public class AppLauncherWidget extends PopupWidget
     public void unpinApp(Application app)
     {   this.pinnedAppsPane.getChildren().removeIf(node -> node instanceof PinnedAppButton btn && btn.app.equals(app));
         this.savePinnedApps();
-    }
-
-    private String getIconPath(String icon)
-    {
-        File file = new File(icon);
-        if (file.exists()) return file.getAbsolutePath();
-
-        String[] paths = new String[]{
-                "/usr/share/icons/",
-                "/usr/share/icons/hicolor/scalable/",
-                "/usr/share/icons/hicolor/scalable/apps/",
-                "/usr/share/icons/hicolor/256x256/apps/",
-                "/usr/share/icons/hicolor/256x256/",
-                "/usr/share/icons/hicolor/128x128/apps/",
-                "/usr/share/icons/hicolor/128x128/",
-                "/usr/share/icons/hicolor/64x64/apps/",
-                "/usr/share/icons/hicolor/64x64/",
-                "/usr/share/icons/hicolor/48x48/apps/",
-                "/usr/share/icons/hicolor/48x48/",
-                "/usr/share/icons/hicolor/32x32/apps/",
-                "/usr/share/icons/hicolor/32x32/",
-                "/usr/share/icons/hicolor/16x16/apps/",
-                "/usr/share/icons/hicolor/16x16/",
-                "/usr/share/pixmaps/",
-                System.getenv("HOME") + "/.local/share/icons/hicolor/48x48/apps/",
-                System.getenv("HOME") + "/.local/share/icons/hicolor/48x48/",
-                System.getenv("HOME") + "/.local/share/icons/hicolor/scalable/apps/",
-                System.getenv("HOME") + "/.local/share/icons/hicolor/scalable/",
-        };
-        String[] extensions = new String[]{".svg", ".png", ".xpm", ""};
-        for (String path : paths)
-        {
-            for (String extension : extensions)
-            {
-                File f = new File(path + icon + extension);
-                if (f.exists())
-                {   return f.getAbsolutePath();
-                }
-            }
-        }
-        return null;
     }
 
     /** Moves focus to a section, selecting the appropriate default entry. */

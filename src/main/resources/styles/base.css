@@ -30,6 +30,9 @@
     -momos-gray-40: rgba(89, 89, 89, 0.25);             /* 40 = 64/255 */
     -momos-gray-55: rgba(89, 89, 89, 0.333);            /* 55 = 85/255 */
     -momos-gray-88: rgba(89, 89, 89, 0.533);            /* 88 = 136/255 */
+    -momos-gray-dd: rgba(89, 89, 89, 0.867);            /* dd = 221/255 */
+    -momos-mid-gray-66: rgba(60, 60, 60, 0.4);          /* 66 = 102/255 */
+    -momos-mid-gray-dd: rgba(60, 60, 60, 0.867);        /* dd = 221/255 */
     -momos-dark-gray-dd: rgba(37, 37, 37, 0.867);       /* dd = 221/255 */
     -momos-dark-gray-cc: rgba(37, 37, 37, 0.8);         /* cc = 204/255 */
     -momos-dark-gray-aa: rgba(37, 37, 37, 0.667);       /* aa = 170/255 */
@@ -126,6 +129,23 @@
     -fx-border-color: -momos-white-44;
 }
 
+/* Generic image/icon button (dark bg, reveals border on hover) */
+.image-button {
+    -fx-background-color: -momos-dark-gray-cc;
+    -fx-background-radius: 4px;
+    -fx-border-color: -momos-light-gray-33;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-padding: 6px;
+    -fx-cursor: hand;
+}
+
+.image-button:hover,
+.image-button.hovered {
+    -fx-background-color: -momos-gray-88;
+    -fx-border-color: -momos-white-55;
+}
+
 /* Text input / Search box */
 .momos-text-field {
     -fx-background-color: -momos-pitch-black-80;
@@ -157,11 +177,23 @@
 .scroll-bar {
     -fx-background-color: transparent;
     -fx-padding: 2px;
+    -fx-opacity: 1;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 15px;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 15px;
 }
 
 .scroll-bar .track {
     -fx-background-color: -momos-dark-gray-66;
-    -fx-background-radius: 4px;
+    -fx-background-radius: 6px;
+    -fx-border-color: -momos-gray-55;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
 }
 
 .scroll-bar .thumb {
@@ -299,7 +331,7 @@
 }
 
 .notification-entry {
-    -fx-background-color: transparent;
+    -fx-background-color: -momos-dark-gray-dd;
     -fx-background-radius: 4px;
     -fx-border-color: -momos-white-33;
     -fx-border-width: 1px;
@@ -308,37 +340,24 @@
 }
 
 .notification-entry:hover {
-    -fx-background-color: -momos-dark-gray-dd;
+    -fx-background-color: -momos-mid-gray-dd;
     -fx-border-color: -momos-white-55;
 }
 
 .notification-entry .title {
     -fx-text-fill: -momos-white-dd;
-    -fx-font-size: 12px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
 .notification-entry .body {
     -fx-text-fill: -momos-white-aa;
-    -fx-font-size: 10px;
+    -fx-font-size: 13px;
 }
 
 .notification-entry .timestamp {
     -fx-text-fill: -momos-light-gray-b0;
-    -fx-font-size: 9px;
-}
-
-.notification-entry .close-button {
-    -fx-background-color: -momos-dark-gray;
-    -fx-background-radius: 4px;
-    -fx-text-fill: -momos-white-aa;
-    -fx-padding: 4px 8px;
-    -fx-cursor: hand;
-}
-
-.notification-entry .close-button:hover {
-    -fx-background-color: -momos-gray;
-    -fx-text-fill: -momos-white;
+    -fx-font-size: 12px;
 }
 
 /* Action buttons in notifications */

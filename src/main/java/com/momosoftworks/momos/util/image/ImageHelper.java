@@ -12,6 +12,45 @@ import java.io.File;
 
 public class ImageHelper
 {
+    public static String getIconPath(String icon)
+    {
+        if (icon == null || icon.isBlank()) return null;
+        File file = new File(icon);
+        if (file.exists()) return file.getAbsolutePath();
+
+        String[] paths = {
+                "/usr/share/icons/",
+                "/usr/share/icons/hicolor/scalable/",
+                "/usr/share/icons/hicolor/scalable/apps/",
+                "/usr/share/icons/hicolor/256x256/apps/",
+                "/usr/share/icons/hicolor/256x256/",
+                "/usr/share/icons/hicolor/128x128/apps/",
+                "/usr/share/icons/hicolor/128x128/",
+                "/usr/share/icons/hicolor/64x64/apps/",
+                "/usr/share/icons/hicolor/64x64/",
+                "/usr/share/icons/hicolor/48x48/apps/",
+                "/usr/share/icons/hicolor/48x48/",
+                "/usr/share/icons/hicolor/32x32/apps/",
+                "/usr/share/icons/hicolor/32x32/",
+                "/usr/share/icons/hicolor/16x16/apps/",
+                "/usr/share/icons/hicolor/16x16/",
+                "/usr/share/pixmaps/",
+                System.getenv("HOME") + "/.local/share/icons/hicolor/48x48/apps/",
+                System.getenv("HOME") + "/.local/share/icons/hicolor/48x48/",
+                System.getenv("HOME") + "/.local/share/icons/hicolor/scalable/apps/",
+                System.getenv("HOME") + "/.local/share/icons/hicolor/scalable/",
+        };
+        for (String path : paths)
+        {
+            for (String ext : new String[]{ ".svg", ".png", ".xpm", "" })
+            {
+                File f = new File(path + icon + ext);
+                if (f.exists()) return f.getAbsolutePath();
+            }
+        }
+        return null;
+    }
+
     public static Image getIcon(String path, int size)
     {
         if (path.endsWith(".svg"))

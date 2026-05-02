@@ -1,5 +1,6 @@
 package com.momosoftworks.momos.widget.app_launcher;
 
+import com.momosoftworks.momos.widget.Widgets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -42,9 +43,7 @@ public class AppEntryButton extends AppButton
         optionsPane.setAlignment(Pos.CENTER_RIGHT);
         optionsPane.getStyleClass().add("app-entry-options");
         // Pin button
-        ImageView pinIcon = new ImageView(PIN_ICON);
-        StackPane pinButton = new StackPane(pinIcon);
-        pinButton.getStyleClass().add("app-entry-option");
+        StackPane pinButton = Widgets.imageButton(PIN_ICON, 14);
         pinButton.setOnMouseClicked(e ->
         {   this.parent.pinApp(app);
             e.consume();

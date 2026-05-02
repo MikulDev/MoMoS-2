@@ -83,40 +83,6 @@
     -fx-border-color: -momos-sudo-border;
 }
 
-/* Pinned apps section */
-.pinned-app {
-    -fx-background-color: -momos-dark-gray-cc;
-    -fx-background-radius: 8px;
-    -fx-border-color: -momos-light-gray-33;
-    -fx-border-width: 1px;
-    -fx-border-radius: 8px;
-    -fx-padding: 8px;
-    -fx-cursor: hand;
-    -fx-alignment: center;
-}
-
-.pinned-app:hover,
-.pinned-app.hovered,
-.pinned-app.focused {
-    -fx-background-color: -momos-gray-88;
-    -fx-border-color: -momos-white-55;
-}
-
-/* App entry option buttons (pin, etc.) */
-.app-entry-option {
-    -fx-background-color: -momos-dark-gray-cc;
-    -fx-background-radius: 4px;
-    -fx-border-color: transparent;
-    -fx-border-width: 1px;
-    -fx-border-radius: 4px;
-    -fx-padding: 4px;
-    -fx-cursor: hand;
-}
-
-.app-entry-option:hover {
-    -fx-background-color: -momos-gray-88;
-    -fx-border-color: -momos-white-55;
-}
 
 .separator {
     -fx-background-color: -momos-white-20;
