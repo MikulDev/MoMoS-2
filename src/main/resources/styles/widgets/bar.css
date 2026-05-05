@@ -108,9 +108,10 @@
 .task-button-line {
     -fx-text-fill: -momos-white-aa;
     -fx-font-size: 12px;
+    -fx-line-spacing: -0.2em;
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-padding: 0;
+    -fx-padding: -2px 0;
 }
 
 .task-button-line.focused {
