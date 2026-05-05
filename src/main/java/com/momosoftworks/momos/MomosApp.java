@@ -4,6 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.momosoftworks.momos.util.image.ImageHelper;
+import com.momosoftworks.momos.util.wm.BspwmConfig;
+import com.momosoftworks.momos.util.wm.CommandHelper;
+import com.momosoftworks.momos.util.wm.MonitorManager;
+import com.momosoftworks.momos.util.wm.WallpaperManager;
 import com.momosoftworks.momos.widget.notification.NotificationHandler;
 import com.momosoftworks.momos.widget.Widget;
 import com.momosoftworks.momos.widget.registry.WidgetRegistry;
@@ -28,6 +32,9 @@ public class MomosApp extends Application
 
     private DBusConnection dbusConnection;
     public static NotificationHandler NOTIFICATION_HANDLER;
+    public static MonitorManager MONITOR_MANAGER;
+    public static BspwmConfig BSPWM_CONFIG;
+    public static WallpaperManager WALLPAPER_MANAGER;
 
     public static void main(String[] args)
     {   launch(args);
@@ -37,6 +44,16 @@ public class MomosApp extends Application
     public void start(Stage primaryStage)
     {
         Platform.setImplicitExit(false);
+        CommandHelper.execute("bspc", "wm", "-r");
+
+        BSPWM_CONFIG    = new BspwmConfig();
+        MONITOR_MANAGER = new MonitorManager();
+        MONITOR_MANAGER.setup();
+        BSPWM_CONFIG.apply();
+        MONITOR_MANAGER.startWatchdog(BSPWM_CONFIG::apply);
+
+        WALLPAPER_MANAGER = new WallpaperManager();
+        WALLPAPER_MANAGER.start();
 
         Thread.ofPlatform().daemon(true).name("dbus-notifications").start(() ->
         {

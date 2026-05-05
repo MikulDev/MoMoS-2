@@ -1,7 +1,9 @@
 package com.momosoftworks.momos.widget.bar;
 
+import com.momosoftworks.momos.MomosApp;
 import com.momosoftworks.momos.util.wm.CommandHelper;
 import com.momosoftworks.momos.util.wm.Desktops;
+import com.momosoftworks.momos.util.wm.MonitorManager;
 import com.momosoftworks.momos.util.wm.Monitors;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -44,9 +46,15 @@ public class WorkspaceButtons extends HBox
 
     private void initializeTags()
     {
-        for (int i = 1; i <= 5; i++)
+        List<String> desktopNames = MomosApp.MONITOR_MANAGER.getVirtualMonitors().stream()
+                .filter(vm -> vm.name().equals(monitor))
+                .findFirst()
+                .map(MonitorManager.VirtualMonitor::desktopNames)
+                .orElse(List.of());
+
+        for (int i = 0; i < desktopNames.size(); i++)
         {
-            String desktopName = monitor.charAt(0) + String.valueOf(i);
+            String desktopName = desktopNames.get(i);
 
             StackPane button = new StackPane();
             button.getStyleClass().add("tag-button");
@@ -63,8 +71,8 @@ public class WorkspaceButtons extends HBox
             StackPane.setAlignment(indicator, Pos.TOP_LEFT);
             StackPane.setMargin(indicator, new Insets(5, 0, 0, 5));
 
-            // Number — centered
-            Label label = new Label(String.valueOf(i));
+            // Display the 1-based index; the full bspwm name is stored in tagComponents
+            Label label = new Label(String.valueOf(i + 1));
             label.getStyleClass().add("tag-button-text");
             StackPane.setAlignment(label, Pos.CENTER);
 
