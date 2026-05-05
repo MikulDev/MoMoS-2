@@ -8,6 +8,7 @@ import javafx.application.Platform;
 import javafx.scene.layout.HBox;
 
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,13 @@ public class TaskBar extends HBox
     private final String monitor;
     private String focusedDesktop;
     private final Map<String, TaskButton> taskButtons = new LinkedHashMap<>();
+    private final Map<String, Process> titleWatcherProcesses = new LinkedHashMap<>();
     private final ExecutorService executor;
+    private final ExecutorService watcherPool = Executors.newCachedThreadPool(r -> {
+        Thread t = new Thread(r);
+        t.setDaemon(true);
+        return t;
+    });
     private volatile boolean running = true;
 
     public TaskBar(String monitor)
@@ -42,6 +49,8 @@ public class TaskBar extends HBox
     {
         this.getChildren().clear();
         taskButtons.clear();
+        titleWatcherProcesses.values().forEach(Process::destroy);
+        titleWatcherProcesses.clear();
         for (String nodeId : Windows.getForDesktop(desktop))
         {   addTask(nodeId);
         }
@@ -135,12 +144,48 @@ public class TaskBar extends HBox
         if (button == null) return;
         taskButtons.put(nodeId, button);
         this.getChildren().add(button);
+        startTitleWatcher(nodeId, button);
     }
 
     private void removeTask(String nodeId)
     {
         TaskButton btn = taskButtons.remove(nodeId);
-        if (btn != null) this.getChildren().remove(btn);
+        if (btn != null)
+        {   this.getChildren().remove(btn);
+        }
+        Process proc = titleWatcherProcesses.remove(nodeId);
+        if (proc != null)
+        {   proc.destroy();
+        }
+    }
+
+    private void startTitleWatcher(String nodeId, TaskButton button)
+    {
+        try
+        {
+            Process proc = new ProcessBuilder("xprop", "-spy", "-id", nodeId, "WM_NAME").start();
+            titleWatcherProcesses.put(nodeId, proc);
+            watcherPool.submit(() -> {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream())))
+                {
+                    String line;
+                    while (running && (line = reader.readLine()) != null)
+                    {
+                        if (!line.startsWith("WM_NAME")) continue;
+                        int eq = line.indexOf('=');
+                        if (eq < 0) continue;
+                        String title = line.substring(eq + 1).trim().replaceAll("^\"|\"$", "");
+                        if (!title.isEmpty())
+                        {
+                            final String t = title;
+                            Platform.runLater(() -> button.setTitle(t));
+                        }
+                    }
+                }
+                catch (Exception ignored) {}
+            });
+        }
+        catch (Exception e) { e.printStackTrace(); }
     }
 
     private void updateFocus(String focusedId)
@@ -163,5 +208,8 @@ public class TaskBar extends HBox
     {
         running = false;
         executor.shutdownNow();
+        watcherPool.shutdownNow();
+        titleWatcherProcesses.values().forEach(Process::destroy);
+        titleWatcherProcesses.clear();
     }
 }

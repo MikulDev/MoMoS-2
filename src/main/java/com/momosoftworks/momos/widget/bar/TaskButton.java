@@ -79,6 +79,10 @@ public class TaskButton extends HBox
     {   setStyleFlag("urgent", urgent);
     }
 
+    public void setTitle(String title)
+    {   nameLabel.setText(title);
+    }
+
     public String getWindowId()
     {   return windowId;
     }
