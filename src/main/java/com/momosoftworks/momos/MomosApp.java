@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.types.UInt32;
+import org.freedesktop.dbus.types.Variant;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -46,7 +47,7 @@ public class MomosApp extends Application
         Platform.setImplicitExit(false);
         CommandHelper.execute("bspc", "wm", "-r");
 
-        BSPWM_CONFIG    = new BspwmConfig();
+        BSPWM_CONFIG = new BspwmConfig();
         MONITOR_MANAGER = new MonitorManager();
         MONITOR_MANAGER.setup();
         BSPWM_CONFIG.apply();
@@ -64,9 +65,6 @@ public class MomosApp extends Application
                 NOTIFICATION_HANDLER = new NotificationHandler();
                 NOTIFICATION_HANDLER.setConnection(dbusConnection);
                 dbusConnection.exportObject(NotificationHandler.OBJECT_PATH, NOTIFICATION_HANDLER);
-                NOTIFICATION_HANDLER.Notify("momos", new UInt32(0), ImageHelper.getIconPath("thunar"),
-                                            "Momos is running!", "Click here to open the configuration menu.", List.of("default", "Open Config"),
-                                            Map.of(), -1);
             }
             catch (Exception e) { e.printStackTrace(); }
         });

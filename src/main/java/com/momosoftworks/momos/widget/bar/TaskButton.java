@@ -33,7 +33,6 @@ public class TaskButton extends HBox
         nameLabel = new Label(title);
         nameLabel.getStyleClass().add("task-button-line");
         nameLabel.setWrapText(true);
-        nameLabel.setMinHeight(USE_PREF_SIZE);
         this.getChildren().addAll(icon, nameLabel);
 
         this.setOnMouseClicked(e -> Desktops.focusWindow(windowId));

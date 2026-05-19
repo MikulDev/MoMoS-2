@@ -2,7 +2,6 @@ package com.momosoftworks.momos.widget.notification;
 
 import com.momosoftworks.momos.util.image.ImageHelper;
 import com.momosoftworks.momos.util.wm.CommandHelper;
-import com.momosoftworks.momos.util.wm.Monitors;
 import com.momosoftworks.momos.widget.Widgets;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -13,6 +12,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -20,6 +21,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.Screen;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
@@ -62,32 +64,42 @@ public class NotificationHandler implements INotifications
     // -------------------------------------------------------------------------
 
     @Override
+    @SuppressWarnings("rawtypes")
     public UInt32 Notify(String app_name, UInt32 replaces_id, String app_icon, String summary, String body,
-                         List<String> actions, Map<String, Variant<?>> hints, int expire_timeout)
+                         List<String> actions, Map<String, Variant> hints, int expire_timeout)
     {
         int id = (replaces_id != null && replaces_id.intValue() != 0)
                 ? replaces_id.intValue()
                 : idCounter.getAndIncrement();
-
         String desktopEntry = null;
-        if (hints != null && hints.containsKey("desktop-entry"))
+        Image inlineIcon = null;
+        if (hints != null)
         {
-            Object val = hints.get("desktop-entry").getValue();
-            if (val instanceof String s) desktopEntry = s;
+            try
+            {
+                if (hints.containsKey("desktop-entry"))
+                {   Object val = hints.get("desktop-entry").getValue();
+                    if (val instanceof String s) desktopEntry = s;
+                }
+                if (hints.containsKey("image-data"))
+                {   inlineIcon = decodeImageData(hints.get("image-data").getValue());
+                }
+            }
+            catch (Exception e)
+            {   System.err.println("[Notify] Failed to read hints from " + app_name + ": " + e.getMessage());
+            }
         }
-
-        Notification record = new Notification(
-                id, app_name, desktopEntry, summary, body, app_icon, System.currentTimeMillis()
-        );
-
+        Notification record = new Notification(id, app_name, desktopEntry, summary, body, app_icon, System.currentTimeMillis());
         synchronized (history)
         {
             history.removeIf(r -> r.id() == id);
             history.addFirst(record);
-            if (history.size() > MAX_HISTORY) history.removeLast();
+            if (history.size() > MAX_HISTORY)
+            {   history.removeLast();
+            }
         }
-
-        Platform.runLater(() -> showPopup(record, expire_timeout));
+        final Image icon = inlineIcon;
+        Platform.runLater(() -> showPopup(record, expire_timeout, icon));
 
         return new UInt32(id);
     }
@@ -105,11 +117,11 @@ public class NotificationHandler implements INotifications
     }
 
     @Override
-    public ServerInfo GetServerInformation()
-    {   return new ServerInfo("MoMoS", "momosoftworks", "1.0", "1.2");
+    public ServerInfo<String, String, String, String> GetServerInformation()
+    {   return new ServerInfo<>("MoMoS", "momosoftworks", "1.0", "1.2");
     }
 
-    public void showPopup(Notification record, int expireTimeout)
+    public void showPopup(Notification record, int expireTimeout, Image inlineIcon)
     {
         Stage popup = new Stage();
         popup.initStyle(StageStyle.TRANSPARENT);
@@ -119,7 +131,7 @@ public class NotificationHandler implements INotifications
         HBox header = new HBox(8);
         header.setAlignment(Pos.TOP_LEFT);
 
-        Image icon = resolveIcon(record.iconPath(), record.appName(), 32);
+        Image icon = inlineIcon != null ? inlineIcon : resolveIcon(record.iconPath(), record.appName(), 32);
         if (icon != null)
         {
             ImageView iconView = new ImageView(icon);
@@ -165,7 +177,7 @@ public class NotificationHandler implements INotifications
         scene.getStylesheets().add(getClass().getResource("/styles/base.css").toExternalForm());
         popup.setScene(scene);
 
-        Rectangle2D screen = Monitors.getBounds("focused");
+        Rectangle2D screen = Screen.getPrimary().getVisualBounds();
         popup.setX(screen.getMinX() + screen.getWidth() - POPUP_WIDTH - POPUP_X_MARGIN);
 
         // Stack below any already-visible popups whose heights are known
@@ -216,7 +228,7 @@ public class NotificationHandler implements INotifications
         synchronized (activePopups)
         {   activePopups.remove(popup);
         }
-        relayoutPopups(Monitors.getBounds("focused"));
+        relayoutPopups(Screen.getPrimary().getVisualBounds());
         emitClosed(record.id(), reason);
     }
 
@@ -267,11 +279,60 @@ public class NotificationHandler implements INotifications
         return resolved != null ? ImageHelper.getIcon(resolved, size) : null;
     }
 
+    // Decodes the FreeDesktop image-data hint: (iiibiiay) = width, height, rowstride, hasAlpha, bpp, channels, data
+    private static Image decodeImageData(Object value)
+    {
+        Object[] parts = value instanceof Object[] a ? a : null;
+        if (parts == null || parts.length < 7) return null;
+        try
+        {
+            int width     = ((Number) parts[0]).intValue();
+            int height    = ((Number) parts[1]).intValue();
+            int rowstride = ((Number) parts[2]).intValue();
+            boolean alpha = (Boolean) parts[3];
+            int channels  = ((Number) parts[5]).intValue();
+
+            byte[] data = switch (parts[6])
+            {
+                case byte[] b -> b;
+                case List<?> l ->
+                {
+                    byte[] buf = new byte[l.size()];
+                    for (int i = 0; i < l.size(); i++) buf[i] = ((Number) l.get(i)).byteValue();
+                    yield buf;
+                }
+                default -> null;
+            };
+            if (data == null || width <= 0 || height <= 0) return null;
+
+            WritableImage img = new WritableImage(width, height);
+            PixelWriter pw = img.getPixelWriter();
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int off = y * rowstride + x * channels;
+                    int r = Byte.toUnsignedInt(data[off]);
+                    int g = Byte.toUnsignedInt(data[off + 1]);
+                    int b = Byte.toUnsignedInt(data[off + 2]);
+                    int a = alpha ? Byte.toUnsignedInt(data[off + 3]) : 255;
+                    pw.setArgb(x, y, (a << 24) | (r << 16) | (g << 8) | b);
+                }
+            }
+            return img;
+        }
+        catch (Exception e)
+        {
+            System.err.println("[Notify] image-data decode failed: " + e.getMessage());
+            return null;
+        }
+    }
+
     private void emitClosed(int id, Notification.CloseReason reason)
     {
         if (connection == null) return;
         try
-        {   connection.sendMessage(new NotificationClosed(OBJECT_PATH, new UInt32(id), reason));
+        {   connection.sendMessage(new NotificationClosed(OBJECT_PATH, new UInt32(id), reason.id()));
         }
         catch (DBusException e) { e.printStackTrace(); }
     }
@@ -279,9 +340,9 @@ public class NotificationHandler implements INotifications
     public static class NotificationClosed extends DBusSignal
     {
         public final UInt32 id;
-        public final Notification.CloseReason reason;
+        public final UInt32 reason;
 
-        public NotificationClosed(String path, UInt32 id, Notification.CloseReason reason) throws DBusException
+        public NotificationClosed(String path, UInt32 id, UInt32 reason) throws DBusException
         {
             super(path, id, reason);
             this.id = id;

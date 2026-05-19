@@ -11,13 +11,14 @@ import java.util.Map;
 @DBusInterfaceName("org.freedesktop.Notifications")
 public interface INotifications extends DBusInterface
 {
+    @SuppressWarnings("rawtypes")
     UInt32 Notify(String app_name, UInt32 replaces_id, String app_icon,
                   String summary, String body, List<String> actions,
-                  Map<String, Variant<?>> hints, int expire_timeout);
+                  Map<String, Variant> hints, int expire_timeout);
 
     void CloseNotification(UInt32 id);
 
     List<String> GetCapabilities();
 
-    ServerInfo GetServerInformation();
+    ServerInfo<String, String, String, String> GetServerInformation();
 }
