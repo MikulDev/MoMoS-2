@@ -81,6 +81,7 @@
     -fx-border-radius: 4px;
     -fx-padding: 4px 8px;
     -fx-pref-width: 300px;
+    -fx-max-height: 40px;
     -fx-cursor: hand;
 }
 
@@ -112,6 +113,9 @@
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-padding: -2px 0;
+    -fx-min-height: 2.5em;
+    -fx-pref-height: 2.5em;
+    -fx-max-height: 2.5em;
 }
 
 .task-button-line.focused {
