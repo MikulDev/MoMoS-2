@@ -125,8 +125,8 @@ public class AppLauncherWidget extends PopupWidget
     private Set<Application> scanApplications()
     {
         String[] paths = new String[]{
-            "/usr/share/applications/",
             System.getenv("HOME") + "/.local/share/applications/",
+            "/usr/share/applications/",
             System.getenv("HOME") + "/.local/share/flatpak/exports/share/applications/",
             "/var/lib/flatpak/exports/share/applications/",
         };
@@ -147,8 +147,7 @@ public class AppLauncherWidget extends PopupWidget
                         if ("true".equalsIgnoreCase(findProperty(lines, "Hidden="))) return;
 
                         String name = findProperty(lines, "Name=");
-                        String exec = findProperty(lines, "Exec=");
-                        if (name == null || exec == null) return;
+                        if (name == null) return;
 
                         // First path wins — skip duplicates from flatpak/other mirrors
                         if (!seenNames.add(name.toLowerCase())) return;
@@ -163,7 +162,7 @@ public class AppLauncherWidget extends PopupWidget
                             {   img = ImageHelper.getIcon(iconPath, 64);
                             }
                         }
-                        apps.add(new Application(img, iconPath, name, p.toString(), exec));
+                        apps.add(new Application(img, iconPath, name, p.toString()));
                     }
                     catch (Exception e) { /* skip malformed entries */ }
                 });
@@ -378,7 +377,7 @@ public class AppLauncherWidget extends PopupWidget
         int idx = (selectedAppIndex >= 0 && selectedAppIndex < visible.size()) ? selectedAppIndex : 0;
         if (idx < visible.size() && visible.get(idx) instanceof AppButton btn)
         {
-            CommandHelper.launchProgram(btn.app.exec());
+            CommandHelper.launchProgram(btn.app);
             this.hide();
         }
     }
@@ -526,7 +525,7 @@ public class AppLauncherWidget extends PopupWidget
                 List<PinnedAppButton> pinned = getPinnedButtons();
                 if (selectedAppIndex >= 0 && selectedAppIndex < pinned.size())
                 {
-                    CommandHelper.launchProgram(pinned.get(selectedAppIndex).app.exec());
+                    CommandHelper.launchProgram(pinned.get(selectedAppIndex).app);
                     this.hide();
                 }
             }

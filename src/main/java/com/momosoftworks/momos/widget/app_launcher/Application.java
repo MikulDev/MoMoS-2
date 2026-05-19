@@ -12,7 +12,6 @@ public final class Application
             .arg("icon", JsonCodec.STRING, app -> app.iconPath)
             .arg("name", JsonCodec.STRING, app -> app.name)
             .arg("path", JsonCodec.STRING, app -> app.path)
-            .arg("exec", JsonCodec.STRING, app -> app.exec)
             .post(app -> app.setIcon(ImageHelper.getIcon(app.iconPath, 64), app.iconPath))
             .build();
 
@@ -20,26 +19,23 @@ public final class Application
     private String iconPath;
     private final String name;
     private final String path;
-    private final String exec;
 
-    public Application(Image icon, String iconPath, String name, String path, String exec)
+    public Application(Image icon, String iconPath, String name, String path)
     {
         this.icon = icon;
         this.iconPath = iconPath;
         this.name = name;
         this.path = path;
-        this.exec = exec;
     }
 
-    public Application(String iconPath, String name, String path, String exec)
-    {   this(null, iconPath, name, path, exec);
+    public Application(String iconPath, String name, String path)
+    {   this(null, iconPath, name, path);
     }
 
     public Image icon() {return icon;}
     public String iconPath() {return iconPath;}
     public String name() {return name;}
     public String path() {return path;}
-    public String exec() {return exec;}
 
     public void setIcon(Image icon, String iconPath)
     {   this.icon = icon;
@@ -55,7 +51,6 @@ public final class Application
         return Objects.equals(this.icon, that.icon) &&
                 Objects.equals(this.iconPath, that.iconPath) &&
                 Objects.equals(this.name, that.name) &&
-                Objects.equals(this.path, that.path) &&
-                Objects.equals(this.exec, that.exec);
+                Objects.equals(this.path, that.path);
     }
 }

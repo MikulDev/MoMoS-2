@@ -46,7 +46,7 @@ public abstract class AppButton extends Pane
     protected void onMouseExit() {}
 
     protected void onClicked(MouseEvent event)
-    {   CommandHelper.launchProgram(app.exec());
+    {   CommandHelper.launchProgram(this.app);
         this.parent.hide();
     }
 }

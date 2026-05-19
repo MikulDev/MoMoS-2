@@ -1,5 +1,7 @@
 package com.momosoftworks.momos.util.wm;
 
+import com.momosoftworks.momos.widget.app_launcher.Application;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -41,17 +43,11 @@ public class CommandHelper
         }
     }
 
-    public static void launchProgram(String exec)
+    public static void launchProgram(Application app)
     {
-        String cleaned = exec.replaceAll("%[UuFfDdNnickvm]", "").trim();
         try
         {
-            StringBuilder shellCmd = new StringBuilder();
-            for (String part : cleaned.split("\\s+"))
-            {   shellCmd.append("'").append(part.replace("'", "'\\''")).append("' ");
-            }
-            shellCmd.append("&");
-            new ProcessBuilder("bash", "-c", shellCmd.toString())
+            new ProcessBuilder("gio", "launch", app.path())
                     .directory(new File(System.getenv("HOME")))
                     .redirectOutput(ProcessBuilder.Redirect.DISCARD)
                     .redirectError(ProcessBuilder.Redirect.DISCARD)
