@@ -129,14 +129,14 @@ public class NotificationHandler implements INotifications
 
         // Icon
         HBox header = new HBox(8);
-        header.setAlignment(Pos.TOP_LEFT);
+        header.setAlignment(Pos.CENTER_LEFT);
 
         Image icon = inlineIcon != null ? inlineIcon : resolveIcon(record.iconPath(), record.appName(), 32);
         if (icon != null)
         {
             ImageView iconView = new ImageView(icon);
-            iconView.setFitWidth(32);
-            iconView.setFitHeight(32);
+            iconView.setFitWidth(42);
+            iconView.setFitHeight(42);
             iconView.setPreserveRatio(true);
             header.getChildren().add(iconView);
         }
