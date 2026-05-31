@@ -1,10 +1,13 @@
 package com.momosoftworks.momos.widget.bar;
 
-import com.momosoftworks.momos.MomosApp;
 import com.momosoftworks.momos.util.Identifier;
+import com.momosoftworks.momos.util.wm.MonitorManager;
+import com.momosoftworks.momos.util.wm.Monitors;
 import com.momosoftworks.momos.widget.Widget;
+import com.momosoftworks.momos.widget.bar.systray.SystemTray;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -18,14 +21,13 @@ public class BarWidget extends Widget
 {
     private static final int BAR_HEIGHT = 50;
     private final String monitor;
-    private final int xOffset;
     private WorkspaceButtons workspaceButtons;
+    private SystemTray systemTray;
 
-    public BarWidget(String monitor)
+    public BarWidget(MonitorManager.VirtualMonitor vm)
     {
-        super(Identifier.of("momos", "bar_" + monitor.toLowerCase()));
-        this.monitor = monitor;
-        this.xOffset = monitor.equals("LEFT") ? 0 : MomosApp.MONITOR_WIDTH;
+        super(Identifier.of("momos", "bar_" + vm.name().toLowerCase()));
+        this.monitor = vm.name();
     }
 
     @Override
@@ -58,11 +60,17 @@ public class BarWidget extends Widget
         right.setStyle("-fx-alignment: center-right;");
         right.setAlignment(Pos.CENTER_RIGHT);
 
+        if (monitor.equals("LEFT"))
+        {
+            systemTray = new SystemTray();
+            right.getChildren().addAll(systemTray, divider());
+        }
         right.getChildren().add(new TextClock(monitor));
 
         root.getChildren().addAll(left, center, right);
 
-        Scene scene = new Scene(root, MomosApp.MONITOR_WIDTH, BAR_HEIGHT);
+        Rectangle2D bounds = Monitors.getBounds(monitor);
+        Scene scene = new Scene(root, bounds.getWidth(), BAR_HEIGHT);
         scene.setFill(Color.TRANSPARENT);
 
         loadStylesheet("bar", scene);
@@ -70,7 +78,7 @@ public class BarWidget extends Widget
         stage.initStyle(StageStyle.TRANSPARENT);
         stage.setScene(scene);
         stage.setTitle("momos-bar-" + monitor.toLowerCase());
-        stage.setX(xOffset);
+        stage.setX(bounds.getMinX());
         stage.setY(0);
         stage.setAlwaysOnTop(true);
 
@@ -90,7 +98,9 @@ public class BarWidget extends Widget
 
     @Override
     public void shutdown()
-    {   if (workspaceButtons != null) workspaceButtons.shutdown();
+    {
+        if (workspaceButtons != null) workspaceButtons.shutdown();
+        if (systemTray != null) systemTray.shutdown();
         super.shutdown();
     }
 }
