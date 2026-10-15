@@ -1,19 +1,28 @@
 package com.momosoftworks.momos.widget.app_launcher;
 
-import com.momosoftworks.momos.widget.Widgets;
+import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 
 public class PinnedAppButton extends AppButton
 {
     public PinnedAppButton(Application app, AppLauncherWidget parent)
     {   super(app, parent);
+        this.getStyleClass().add("image-button");
     }
 
     @Override
-    protected Pane createPane()
-    {   return Widgets.imageButton(app.icon(), 28);
+    protected Node createContent()
+    {
+        ImageView view = new ImageView();
+        if (app.icon() != null)
+        {   view.setImage(app.icon());
+        }
+        view.setFitWidth(28);
+        view.setPreserveRatio(true);
+        view.setMouseTransparent(true);
+        return view;
     }
 
     @Override

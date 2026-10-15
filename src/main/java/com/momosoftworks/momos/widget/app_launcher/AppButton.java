@@ -1,46 +1,35 @@
 package com.momosoftworks.momos.widget.app_launcher;
 
 import com.momosoftworks.momos.util.wm.CommandHelper;
+import javafx.css.PseudoClass;
+import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 
-public abstract class AppButton extends Pane
+public abstract class AppButton extends StackPane
 {
-    protected Application app;
-    protected AppLauncherWidget parent;
+    private static final PseudoClass SELECTED = PseudoClass.getPseudoClass("selected");
+
+    protected final Application app;
+    protected final AppLauncherWidget parent;
 
     public AppButton(Application app, AppLauncherWidget parent)
     {
         this.app = app;
         this.parent = parent;
-        Pane mainPane = this.createPane();
-        mainPane.setOnMouseClicked(this::onClicked);
-        mainPane.setOnMouseEntered(e -> this.onMouseEnter());
-        mainPane.setOnMouseExited(e  -> this.onMouseExit());
-        mainPane.setOnMouseMoved(e -> this.onMouseEnter());
-        this.getChildren().add(mainPane);
+        this.getChildren().add(this.createContent());
+        this.setOnMouseClicked(this::onClicked);
+        this.setOnMouseEntered(e -> this.onMouseEnter());
+        this.setOnMouseExited(e -> this.onMouseExit());
         this.setMaxWidth(Double.MAX_VALUE);
     }
 
-    @Override
-    protected void layoutChildren()
-    {   getChildren().get(0).resize(getWidth(), getHeight());
+    /** True while this entry is the keyboard- or mouse-highlighted selection, not literal CSS hover. */
+    public void setSelected(boolean selected)
+    {   pseudoClassStateChanged(SELECTED, selected);
     }
 
-    public void setHovered(boolean hovered)
-    {
-        var classes = this.getChildren().getFirst().getStyleClass();
-        if (hovered)
-        {   if (!classes.contains("hovered"))
-            {   classes.add("hovered");
-            }
-        }
-        else
-        {   classes.removeIf("hovered"::equals);
-        }
-    }
-
-    protected abstract Pane createPane();
+    protected abstract Node createContent();
 
     protected void onMouseEnter() {}
     protected void onMouseExit() {}

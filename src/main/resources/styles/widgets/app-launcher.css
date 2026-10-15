@@ -57,8 +57,7 @@
     -fx-cursor: hand;
 }
 
-.app-entry.hovered,
-.app-entry.focused {
+.app-entry:selected {
     -fx-background-color: -momos-gray-88;
     -fx-border-color: -momos-white-55;
 }
@@ -68,8 +67,7 @@
     -fx-font-size: 14px;
 }
 
-.app-entry:hover .app-name,
-.app-entry.focused .app-name {
+.app-entry:selected .app-entry-name {
     -fx-text-fill: -momos-white;
 }
 

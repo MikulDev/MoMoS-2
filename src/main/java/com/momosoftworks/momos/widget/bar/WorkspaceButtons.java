@@ -1,11 +1,12 @@
 package com.momosoftworks.momos.widget.bar;
 
 import com.momosoftworks.momos.MomosApp;
-import com.momosoftworks.momos.util.wm.CommandHelper;
+import com.momosoftworks.momos.util.wm.BspcSubscriber;
 import com.momosoftworks.momos.util.wm.Desktops;
 import com.momosoftworks.momos.util.wm.MonitorManager;
 import com.momosoftworks.momos.util.wm.Monitors;
 import javafx.application.Platform;
+import javafx.css.PseudoClass;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -14,18 +15,21 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 
-import java.io.BufferedReader;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class WorkspaceButtons extends HBox
 {
+    // Named "wm-focused" rather than "focused" to avoid colliding with JavaFX's own
+    // built-in :focused pseudo-class, which tracks real keyboard focus.
+    private static final PseudoClass WM_FOCUSED = PseudoClass.getPseudoClass("wm-focused");
+    private static final PseudoClass OCCUPIED   = PseudoClass.getPseudoClass("occupied");
+    private static final PseudoClass URGENT     = PseudoClass.getPseudoClass("urgent");
+    private static final PseudoClass SELECTED   = PseudoClass.getPseudoClass("selected");
+
     private final String monitor;
     private volatile String focusedDesktop;
     private final Map<String, TagComponents> tagComponents = new HashMap<>();
-    private final ExecutorService executor;
-    private volatile boolean running = true;
+    private final BspcSubscriber subscription;
 
     public WorkspaceButtons(String monitor)
     {
@@ -33,15 +37,10 @@ public class WorkspaceButtons extends HBox
         this.setSpacing(4);
         this.getStyleClass().add("workspace-indicator");
 
-        executor = Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "bspwm-subscribe-" + monitor);
-            t.setDaemon(true);
-            return t;
-        });
-
         this.focusedDesktop = Desktops.getFocused(monitor);
         initializeTags();
-        startEventListener();
+        this.subscription = new BspcSubscriber("bspwm-subscribe-" + monitor, this::onEvent,
+                                               "desktop_focus", "node_transfer", "node_add", "node_remove");
     }
 
     private void initializeTags()
@@ -87,33 +86,16 @@ public class WorkspaceButtons extends HBox
         this.updateState();
     }
 
-    private void startEventListener()
+    private void onEvent(String[] parts)
     {
-        executor.submit(() -> {
-            try
-            {
-                BufferedReader reader = CommandHelper.executeAndRead("bspc", "subscribe", "desktop_focus", "node_transfer", "node_add", "node_remove");
-                String line;
-
-                while (running && (line = reader.readLine()) != null)
-                {
-                    String[] parts = line.split(" ");
-
-                    if (parts[0].equals("desktop_focus"))
-                    {
-                        if (!Objects.equals(monitor, Monitors.fromID(parts[1]))) continue;
-                        String desktop = Desktops.fromID(parts[2]);
-                        if (desktop != null && !desktop.isEmpty())
-                            focusedDesktop = desktop;
-                    }
-
-                    Platform.runLater(this::updateState);
-                }
-            }
-            catch (Exception e)
-            {   if (running) e.printStackTrace();
-            }
-        });
+        if (parts[0].equals("desktop_focus"))
+        {
+            if (!Objects.equals(monitor, Monitors.fromID(parts[1]))) return;
+            String desktop = Desktops.fromID(parts[2]);
+            if (desktop != null && !desktop.isEmpty())
+                focusedDesktop = desktop;
+        }
+        Platform.runLater(this::updateState);
     }
 
     private void updateState()
@@ -136,23 +118,14 @@ public class WorkspaceButtons extends HBox
                 boolean occupied = occupiedDesktops.contains(desktop);
                 boolean urgent   = urgentDesktops.contains(desktop);
 
-                button.getStyleClass().removeAll("focused", "occupied", "urgent");
-                label.getStyleClass().removeAll("focused");
-                if (focused)
-                {   button.getStyleClass().addFirst("focused");
-                    label.getStyleClass().addFirst("focused");
-                }
-                if (urgent)
-                {   button.getStyleClass().addFirst("urgent");
-                }
+                button.pseudoClassStateChanged(WM_FOCUSED, focused);
+                button.pseudoClassStateChanged(OCCUPIED, occupied);
+                button.pseudoClassStateChanged(URGENT, urgent);
+                label.pseudoClassStateChanged(WM_FOCUSED, focused);
 
-                // Circle visibility and fill vs. outline driven by style classes
+                // Circle visibility and fill vs. outline driven by pseudo-class state
                 indicator.setVisible(occupied);
-                indicator.getStyleClass().remove("tag-indicator-selected");
-                if (occupied && focused)
-                {
-                    indicator.getStyleClass().add("tag-indicator-selected");
-                }
+                indicator.pseudoClassStateChanged(SELECTED, occupied && focused);
             }
         }
         catch (Exception e)
@@ -161,9 +134,7 @@ public class WorkspaceButtons extends HBox
     }
 
     public void shutdown()
-    {
-        running = false;
-        executor.shutdownNow();
+    {   subscription.close();
     }
 
     private record TagComponents(Pane button, Circle indicator, Label label) {}

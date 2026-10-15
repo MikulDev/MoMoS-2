@@ -39,7 +39,6 @@ public class BarWidget extends Widget
 
         // Left section - workspace indicator for this monitor only
         HBox left = new HBox(8);
-        left.setStyle("-fx-alignment: center-left;");
 
         workspaceButtons = new WorkspaceButtons(monitor);
         left.getChildren().add(workspaceButtons);
@@ -57,7 +56,6 @@ public class BarWidget extends Widget
 
         // Right section
         HBox right = new HBox(8);
-        right.setStyle("-fx-alignment: center-right;");
         right.setAlignment(Pos.CENTER_RIGHT);
 
         if (monitor.equals("LEFT"))

@@ -34,15 +34,15 @@
     -fx-border-color: -momos-white-44;
 }
 
-.tag-button.focused {
+.tag-button:wm-focused {
     -fx-background-color: rgba(159, 159, 159, 0.376);
     -fx-border-color: -momos-white-20;
 }
 
-.tag-button.urgent.focused {
+.tag-button:urgent:wm-focused {
     -fx-background-color: linear-gradient(from 50% 0% to 50% 100%, rgba(159, 159, 159, 0.376), -momos-selected-60);
 }
-.tag-button.urgent {
+.tag-button:urgent {
     -fx-background-color: linear-gradient(from 50% 50% to 50% 100%, transparent, -momos-selected-60);
 }
 
@@ -52,7 +52,7 @@
     -fx-font-size: 15px;
 }
 
-.tag-button-text.focused {
+.tag-button-text:wm-focused {
     -fx-text-fill: -momos-white;
 }
 
@@ -68,7 +68,7 @@
     -fx-radius: 3.5px;
 }
 
-.tag-indicator-selected {
+.tag-indicator:selected {
     -fx-fill: #dddddd;
     -fx-stroke: transparent;
     -fx-stroke-width: 1;
@@ -86,19 +86,19 @@
 }
 
 .task-button:hover,
-.task-button.focused {
+.task-button:wm-focused {
     -fx-background-color: rgba(159, 159, 159, 0.376);
     -fx-border-color: -momos-white-20;
     -fx-text-fill: -momos-white;
 }
 
-.task-button.minimized {
+.task-button:minimized {
     -fx-background-color: rgba(19, 19, 19, 0.627);
     -fx-border-color: rgba(89, 89, 89, 0.565);
     -fx-text-fill: -momos-light-gray-b0;
 }
 
-.task-button.urgent {
+.task-button:urgent {
     -fx-background-color: -momos-selected-80;
 }
 
@@ -118,7 +118,7 @@
     -fx-max-height: 2.5em;
 }
 
-.task-button-line.focused {
+.task-button-line:wm-focused {
     -fx-text-fill: -momos-white;
 }
 

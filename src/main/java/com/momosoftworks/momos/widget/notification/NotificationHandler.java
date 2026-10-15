@@ -2,7 +2,7 @@ package com.momosoftworks.momos.widget.notification;
 
 import com.momosoftworks.momos.util.image.ImageHelper;
 import com.momosoftworks.momos.util.wm.CommandHelper;
-import com.momosoftworks.momos.widget.Widgets;
+import com.momosoftworks.momos.widget.IconButton;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -17,7 +17,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -152,7 +151,7 @@ public class NotificationHandler implements INotifications
         VBox titleBox = new VBox(2, titleLabel, appLabel);
         HBox.setHgrow(titleBox, Priority.ALWAYS);
 
-        StackPane closeBtn = Widgets.imageButton(CLOSE_ICON, 12);
+        IconButton closeBtn = new IconButton(CLOSE_ICON, 12);
 
         header.getChildren().addAll(titleBox, closeBtn);
 
@@ -204,11 +203,10 @@ public class NotificationHandler implements INotifications
             timer.play();
         }
 
-        closeBtn.setOnMouseClicked(e ->
+        closeBtn.setOnAction(e ->
         {
             if (timer != null) timer.stop();
             dismissPopup(popup, record, Notification.CloseReason.DISMISSED);
-            e.consume();
         });
 
         content.setOnMouseClicked(e ->

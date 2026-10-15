@@ -1,15 +1,14 @@
 package com.momosoftworks.momos.widget.app_launcher;
 
-import com.momosoftworks.momos.widget.Widgets;
+import com.momosoftworks.momos.widget.IconButton;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 
 public class AppEntryButton extends AppButton
 {
@@ -19,13 +18,13 @@ public class AppEntryButton extends AppButton
 
     public AppEntryButton(Application app, AppLauncherWidget parent)
     {   super(app, parent);
+        this.getStyleClass().add("app-entry");
     }
 
     @Override
-    protected Pane createPane()
+    protected Node createContent()
     {
         HBox mainPane = new HBox(10);
-        mainPane.getStyleClass().add("app-entry");
         mainPane.setAlignment(Pos.CENTER_LEFT);
 
         // Icon
@@ -43,11 +42,8 @@ public class AppEntryButton extends AppButton
         optionsPane.setAlignment(Pos.CENTER_RIGHT);
         optionsPane.getStyleClass().add("app-entry-options");
         // Pin button
-        StackPane pinButton = Widgets.imageButton(PIN_ICON, 14);
-        pinButton.setOnMouseClicked(e ->
-        {   this.parent.pinApp(app);
-            e.consume();
-        });
+        IconButton pinButton = new IconButton(PIN_ICON, 14);
+        pinButton.setOnAction(e -> this.parent.pinApp(app));
         optionsPane.getChildren().add(pinButton);
         optionsPane.setVisible(false);
 
@@ -58,9 +54,9 @@ public class AppEntryButton extends AppButton
     }
 
     @Override
-    public void setHovered(boolean hovered)
-    {   super.setHovered(hovered);
-        this.optionsPane.setVisible(hovered);
+    public void setSelected(boolean selected)
+    {   super.setSelected(selected);
+        this.optionsPane.setVisible(selected);
     }
 
     @Override

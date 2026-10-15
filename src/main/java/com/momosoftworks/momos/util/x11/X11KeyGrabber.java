@@ -10,9 +10,17 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
- * Grabs the physical keyboard at the X11 level and forwards translated key
- * tokens to a callback.  Uses its own display connection so it is entirely
+ * Grabs the physical keyboard at the X11 level and forwards named keys and
+ * typed text to callbacks.  Uses its own display connection so it is entirely
  * independent of JavaFX's display connection and safe to run on any thread.
+ * <p>
+ * Configure it builder-style, then {@link #start()} / {@link #stop()} it as often as needed:
+ * <pre>{@code
+ * grabber = new X11KeyGrabber()
+ *         .interrupt(X11Key.SUPER_L, X11Key.SUPER_R)
+ *         .key(X11Key.ESCAPE, () -> Platform.runLater(this::hide));
+ * }</pre>
+ * All callbacks run on the grab thread, not the JavaFX thread.
  * <p>
  * Because the grab is tied to the X11 client connection, it is released
  * automatically if the JVM exits for any reason.
@@ -39,70 +47,77 @@ public class X11KeyGrabber
     private static final int  GRAB_MODE_ASYNC = 1;
     private static final long CURRENT_TIME    = 0L;
 
-    // XK_ keysym values from <X11/keysymdef.h>
-    public static final long XK_BACKSPACE = 0xFF08L;
-    public static final long XK_RETURN    = 0xFF0DL;
-    public static final long XK_TAB       = 0xFF09L;
-    public static final long XK_ESCAPE    = 0xFF1BL;
-    public static final long XK_DELETE    = 0xFFFFL;
-    public static final long XK_HOME      = 0xFF50L;
-    public static final long XK_END       = 0xFF57L;
-    public static final long XK_UP        = 0xFF52L;
-    public static final long XK_DOWN      = 0xFF54L;
-    public static final long XK_LEFT      = 0xFF51L;
-    public static final long XK_RIGHT     = 0xFF53L;
-    public static final long XK_SUPER_L   = 0xFFEBL;
-    public static final long XK_SUPER_R   = 0xFFECL;
-    public static final long XK_PRINT     = 0xFF61L;
-
     private static final int XEVENT_SIZE = 192;
 
     private static final LibX11 LIB = LibraryLoader.create(LibX11.class).load("X11");
 
-    private static final Map<Long, String> TRANSLATION_MAP = new HashMap<>(){{
-        put(XK_ESCAPE, "KEY Escape");
-        put(XK_RETURN, "KEY Return");
-        put(XK_TAB, "KEY Tab");
-        put(XK_BACKSPACE, "KEY BackSpace");
-        put(XK_DELETE, "KEY Delete");
-        put(XK_HOME, "KEY Home");
-        put(XK_END, "KEY End");
-        put(XK_UP, "KEY Up");
-        put(XK_DOWN, "KEY Down");
-        put(XK_LEFT, "KEY Left");
-        put(XK_RIGHT, "KEY Right");
-        put(XK_SUPER_L, "KEY Super_L");
-        put(XK_SUPER_R, "KEY Super_R");
-    }};
-
-    private volatile boolean running  = false;
-    private Runnable onResume = null;
-    private final Set<Long> interruptKeys = new HashSet<>();
-
-    public void addInterruptKeys(Long... keys)
-    {   interruptKeys.addAll(Arrays.asList(keys));
-    }
-
-    /** Called on the grab thread each time the grabber resumes after an interrupt. */
-    public void setOnResume(Runnable onResume)
-    {   this.onResume = onResume;
-    }
+    private final Set<X11Key> interruptKeys = EnumSet.noneOf(X11Key.class);
+    private final Map<X11Key, Runnable> keyHandlers = new EnumMap<>(X11Key.class);
+    private Consumer<X11Key> onKey = key -> {};
+    private Consumer<String> onText = text -> {};
+    private Runnable onResume = () -> {};
+    private Thread thread;
 
     /**
-     * Grabs the keyboard and blocks, calling {@code onKey} with each token until
-     * {@link #stop()} is called.  Always run this from a dedicated background thread.
-     * <p>
-     * Token format matches the keygrabber protocol:
-     * <ul>
-     *   <li>{@code "CHAR <text>"} — printable character(s) to insert</li>
-     *   <li>{@code "KEY <name>"}  — named control key (Escape, Return, BackSpace, …)</li>
-     * </ul>
-     * <p>
-     * Keys registered via {@link #addInterruptKeys} are never forwarded to {@code onKey}.
-     * Instead, the grab is released so the OS/WM can handle the key combination, then
-     * automatically re-established once all interrupt keys are physically released.
+     * Keys that are never forwarded to any callback. Instead, the grab is released so the
+     * OS/WM can handle the key combination, then automatically re-established once all
+     * interrupt keys are physically released.
      */
-    public void start(Consumer<String> onKey)
+    public X11KeyGrabber interrupt(X11Key... keys)
+    {   interruptKeys.addAll(Arrays.asList(keys));
+        return this;
+    }
+
+    /** Runs {@code handler} when {@code key} is pressed, instead of passing it to {@link #onKey}. */
+    public X11KeyGrabber key(X11Key key, Runnable handler)
+    {   keyHandlers.put(key, handler);
+        return this;
+    }
+
+    /** Called with each named key press that has no dedicated {@link #key} handler. */
+    public X11KeyGrabber onKey(Consumer<X11Key> onKey)
+    {   this.onKey = onKey;
+        return this;
+    }
+
+    /** Called with the printable character(s) produced by any key that isn't an {@link X11Key}. */
+    public X11KeyGrabber onText(Consumer<String> onText)
+    {   this.onText = onText;
+        return this;
+    }
+
+    /** Called each time the grab is re-established after an {@link #interrupt} key is released. */
+    public X11KeyGrabber onResume(Runnable onResume)
+    {   this.onResume = onResume;
+        return this;
+    }
+
+    /** Grabs the keyboard on a new background thread. Does nothing if already started. */
+    public synchronized void start()
+    {
+        if (thread != null) return;
+        thread = Thread.ofPlatform().name("x11-keygrabber").daemon().start(() ->
+        {
+            try
+            {   this.run();
+            }
+            catch (Exception e)
+            {   e.printStackTrace();
+            }
+        });
+    }
+
+    /** Releases the grab; the thread exits on its next poll cycle (≤ 5 ms). Safe to call when not started. */
+    public synchronized void stop()
+    {
+        if (thread == null) return;
+        thread.interrupt();
+        thread = null;
+    }
+
+    // Each grab thread runs until interrupted, so a stop() immediately followed by start()
+    // can't revive the old thread's loop.
+    private void run()
     {
         Pointer display = LIB.XOpenDisplay(null);
         if (display == null || display.address() == 0)
@@ -114,20 +129,19 @@ public class X11KeyGrabber
 
             // Pre-resolve interrupt keysyms → keycodes for XQueryKeymap polling
             Set<Integer> interruptCodes = new HashSet<>();
-            for (long sym : interruptKeys)
+            for (X11Key key : interruptKeys)
             {
-                int code = LIB.XKeysymToKeycode(display, sym);
+                int code = LIB.XKeysymToKeycode(display, key.keysym());
                 if (code > 0) interruptCodes.add(code);
             }
 
             this.grab(display, root);
-            running = true;
 
             Pointer event  = Memory.allocateDirect(Runtime.getSystemRuntime(), XEVENT_SIZE);
             byte[] buf = new byte[32];
             long[] keysym = new long[1];
 
-            while (running)
+            while (!Thread.currentThread().isInterrupted())
             {
                 if (LIB.XPending(display) == 0)
                 {
@@ -140,22 +154,26 @@ public class X11KeyGrabber
                 if (event.getInt(0) != KEY_PRESS) continue;
 
                 int len = LIB.XLookupString(event, buf, buf.length - 1, keysym, null);
+                X11Key key = X11Key.fromKeysym(keysym[0]);
 
-                if (!interruptCodes.isEmpty() && interruptKeys.contains(keysym[0]))
+                if (!interruptCodes.isEmpty() && interruptKeys.contains(key))
                 {
                     LIB.XUngrabKeyboard(display, CURRENT_TIME);
                     this.waitForInterruptKeysReleased(display, interruptCodes);
-                    if (!running) break;
+                    if (Thread.currentThread().isInterrupted()) break;
                     this.grab(display, root);
-                    if (onResume != null)
-                    {   onResume.run();
-                    }
+                    onResume.run();
                     continue;
                 }
 
-                String token = translate(keysym[0], buf, len);
-                if (token != null)
-                {   onKey.accept(token);
+                if (key != null)
+                {
+                    Runnable handler = keyHandlers.get(key);
+                    if (handler != null) handler.run();
+                    else onKey.accept(key);
+                }
+                else if (len > 0)
+                {   onText.accept(new String(buf, 0, len, StandardCharsets.UTF_8));
                 }
             }
         }
@@ -163,11 +181,6 @@ public class X11KeyGrabber
         {   LIB.XUngrabKeyboard(display, CURRENT_TIME);
             LIB.XCloseDisplay(display);
         }
-    }
-
-    /** Signals the event loop to exit on its next poll cycle (≤ 5 ms). */
-    public void stop()
-    {   running = false;
     }
 
     private void grab(Pointer display, long root)
@@ -195,7 +208,7 @@ public class X11KeyGrabber
     private void waitForInterruptKeysReleased(Pointer display, Set<Integer> keycodes)
     {
         byte[] keys = new byte[32];
-        while (running)
+        while (!Thread.currentThread().isInterrupted())
         {
             LIB.XQueryKeymap(display, keys);
             boolean anyHeld = keycodes.stream().anyMatch(code -> (keys[code >> 3] & (1 << (code & 7))) != 0);
@@ -209,17 +222,5 @@ public class X11KeyGrabber
             {   Thread.currentThread().interrupt(); break;
             }
         }
-    }
-
-    private static String translate(long sym, byte[] buf, int len)
-    {
-        String lookupResult = TRANSLATION_MAP.get(sym);
-        if (lookupResult != null)
-        {   return lookupResult;
-        }
-        if (len > 0)
-        {   return "CHAR " + new String(buf, 0, len, StandardCharsets.UTF_8);
-        }
-        return null;
     }
 }

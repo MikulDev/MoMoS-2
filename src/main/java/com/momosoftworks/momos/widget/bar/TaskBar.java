@@ -1,6 +1,6 @@
 package com.momosoftworks.momos.widget.bar;
 
-import com.momosoftworks.momos.util.wm.CommandHelper;
+import com.momosoftworks.momos.util.wm.BspcSubscriber;
 import com.momosoftworks.momos.util.wm.Desktops;
 import com.momosoftworks.momos.util.wm.Monitors;
 import com.momosoftworks.momos.util.wm.Windows;
@@ -22,7 +22,7 @@ public class TaskBar extends HBox
     private String focusedDesktop;
     private final Map<String, TaskButton> taskButtons = new LinkedHashMap<>();
     private final Map<String, Process> titleWatcherProcesses = new LinkedHashMap<>();
-    private final ExecutorService executor;
+    private final BspcSubscriber subscription;
     private final ExecutorService watcherPool = Executors.newCachedThreadPool(r -> {
         Thread t = new Thread(r);
         t.setDaemon(true);
@@ -36,13 +36,8 @@ public class TaskBar extends HBox
         this.setSpacing(4);
         this.getStyleClass().add("taskbar-tasks");
 
-        executor = Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "bspwm-subscribe-tasks");
-            t.setDaemon(true);
-            return t;
-        });
-
-        this.startEventListener();
+        this.subscription = new BspcSubscriber("bspwm-subscribe-tasks", this::onEvent,
+                                               "node_add", "node_remove", "node_focus", "node_flag", "node_transfer", "desktop_focus");
     }
 
     private void initializeTasks(String desktop)
@@ -56,85 +51,72 @@ public class TaskBar extends HBox
         }
     }
 
-    private void startEventListener()
+    private void onEvent(String[] parts)
     {
-        executor.submit(() -> {
-            try (BufferedReader reader = CommandHelper.executeAndRead("bspc", "subscribe", "node_add", "node_remove",
-                                                                      "node_focus", "node_flag", "node_transfer", "desktop_focus"))
+        String event = parts[0];
+
+        List<String> allDesktops = Desktops.getAll(monitor);
+        if (!allDesktops.contains(Desktops.getFocused()))
+        {   this.taskButtons.values().forEach(btn -> btn.setTaskFocused(false));
+        }
+        boolean isOnThisMonitor = Objects.equals(monitor, Monitors.fromID(parts[1]));
+        switch (event)
+        {
+            case "desktop_focus" ->
             {
-                String line;
-
-                while (running && (line = reader.readLine()) != null)
-                {
-                    String[] parts = line.split(" ");
-                    String event = parts[0];
-
-                    List<String> allDesktops = Desktops.getAll(monitor);
-                    if (!allDesktops.contains(Desktops.getFocused()))
-                    {   this.taskButtons.values().forEach(btn -> btn.setTaskFocused(false));
+                String desktop = Desktops.fromID(parts[2]);
+                if (isOnThisMonitor && !desktop.isEmpty())
+                {   Platform.runLater(() -> initializeTasks(desktop));
+                    this.focusedDesktop = desktop;
+                }
+            }
+            case "node_transfer" ->
+            {
+                if (parts.length >= 7)
+                {   String srcDesktop = Desktops.fromID(parts[2]);
+                    String dstDesktop = Desktops.fromID(parts[5]);
+                    String nodeId = parts[3];
+                    if (Objects.equals(focusedDesktop, srcDesktop))
+                    {   Platform.runLater(() -> removeTask(nodeId));
                     }
-                    boolean isOnThisMonitor = Objects.equals(monitor, Monitors.fromID(parts[1]));
-                    switch (event)
-                    {
-                        case "desktop_focus" ->
-                        {
-                            String desktop = Desktops.fromID(parts[2]);
-                            if (isOnThisMonitor && !desktop.isEmpty())
-                            {   Platform.runLater(() -> initializeTasks(desktop));
-                                this.focusedDesktop = desktop;
-                            }
-                        }
-                        case "node_transfer" ->
-                        {
-                            if (parts.length >= 7)
-                            {   String srcDesktop = Desktops.fromID(parts[2]);
-                                String dstDesktop = Desktops.fromID(parts[5]);
-                                String nodeId = parts[3];
-                                if (Objects.equals(focusedDesktop, srcDesktop))
-                                {   Platform.runLater(() -> removeTask(nodeId));
-                                }
-                                if (Objects.equals(focusedDesktop, dstDesktop))
-                                {   Platform.runLater(() -> addTask(nodeId));
-                                }
-                            }
-                        }
-                        case "node_add" ->
-                        {
-                            if (isOnThisMonitor)
-                            {   String desktop = Desktops.fromID(parts[2]);
-                                if (!Objects.equals(desktop, this.focusedDesktop)) continue;
-                                String nodeID = parts[4];
-                                Platform.runLater(() -> addTask(nodeID));
-                            }
-                        }
-                        case "node_remove" ->
-                        {
-                            if (isOnThisMonitor && parts.length >= 4)
-                            {   final String id = parts[3];
-                                Platform.runLater(() -> removeTask(id));
-                            }
-                        }
-                        case "node_focus" ->
-                        {
-                            if (isOnThisMonitor && parts.length >= 4)
-                            {   final String id = parts[3];
-                                Platform.runLater(() -> updateFocus(id));
-                            }
-                        }
-                        case "node_flag" ->
-                        {
-                            if (isOnThisMonitor && parts.length >= 6)
-                            {   final String id   = parts[3];
-                                final String flag = parts[4];
-                                final boolean on  = parts[5].equals("on");
-                                Platform.runLater(() -> updateFlag(id, flag, on));
-                            }
-                        }
+                    if (Objects.equals(focusedDesktop, dstDesktop))
+                    {   Platform.runLater(() -> addTask(nodeId));
                     }
                 }
             }
-            catch (Exception e) { if (running) e.printStackTrace(); }
-        });
+            case "node_add" ->
+            {
+                if (isOnThisMonitor)
+                {   String desktop = Desktops.fromID(parts[2]);
+                    if (!Objects.equals(desktop, this.focusedDesktop)) return;
+                    String nodeID = parts[4];
+                    Platform.runLater(() -> addTask(nodeID));
+                }
+            }
+            case "node_remove" ->
+            {
+                if (isOnThisMonitor && parts.length >= 4)
+                {   final String id = parts[3];
+                    Platform.runLater(() -> removeTask(id));
+                }
+            }
+            case "node_focus" ->
+            {
+                if (isOnThisMonitor && parts.length >= 4)
+                {   final String id = parts[3];
+                    Platform.runLater(() -> updateFocus(id));
+                }
+            }
+            case "node_flag" ->
+            {
+                if (isOnThisMonitor && parts.length >= 6)
+                {   final String id   = parts[3];
+                    final String flag = parts[4];
+                    final boolean on  = parts[5].equals("on");
+                    Platform.runLater(() -> updateFlag(id, flag, on));
+                }
+            }
+        }
     }
 
     private void addTask(String nodeId)
@@ -207,7 +189,7 @@ public class TaskBar extends HBox
     public void shutdown()
     {
         running = false;
-        executor.shutdownNow();
+        subscription.close();
         watcherPool.shutdownNow();
         titleWatcherProcesses.values().forEach(Process::destroy);
         titleWatcherProcesses.clear();

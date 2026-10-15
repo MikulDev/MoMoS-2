@@ -7,6 +7,7 @@ import com.momosoftworks.momos.util.Identifier;
 import com.momosoftworks.momos.util.image.ImageHelper;
 import com.momosoftworks.momos.util.wm.CommandHelper;
 import com.momosoftworks.momos.util.wm.Monitors;
+import com.momosoftworks.momos.util.x11.X11Key;
 import com.momosoftworks.momos.util.x11.X11KeyGrabber;
 import com.momosoftworks.momos.widget.PopupWidget;
 import javafx.application.Platform;
@@ -43,8 +44,11 @@ public class AppLauncherWidget extends PopupWidget
     private enum Section { PINNED, APPS }
 
     private TextField searchField;
-    private X11KeyGrabber grabber;
-    private Thread grabThread;
+    private final X11KeyGrabber grabber = new X11KeyGrabber()
+        .interrupt(X11Key.SUPER_L, X11Key.SUPER_R)
+        .onResume(() -> Platform.runLater(() -> searchField.requestFocus()))
+        .onKey(key   -> Platform.runLater(() -> handleKey(key)))
+        .onText(text -> Platform.runLater(() -> handleText(text)));
     private VBox appsList;
     private HBox pinnedAppsPane;
     private ScrollPane appEntriesPane;
@@ -206,9 +210,9 @@ public class AppLauncherWidget extends PopupWidget
     public void filterResults(String filter)
     {
         if (appsList == null) return;
-        // Clear hovered from every entry before visibility changes — index tracking breaks
-        // when the visible set changes, so entries can otherwise retain .hovered while hidden
-        appsList.getChildren().forEach(n -> ((AppButton) n).setHovered(false));
+        // Clear selection from every entry before visibility changes — index tracking breaks
+        // when the visible set changes, so entries can otherwise retain :selected while hidden
+        appsList.getChildren().forEach(n -> ((AppButton) n).setSelected(false));
         selectedAppIndex = -1;
         Predicate<Node> predicate = filter.isEmpty()
                                          ? (app -> true)
@@ -325,20 +329,20 @@ public class AppLauncherWidget extends PopupWidget
     {
         List<Node> visible = this.getVisibleEntries();
         if (selectedAppIndex >= 0 && selectedAppIndex < visible.size() && selectedAppIndex != index)
-        {   ((AppButton) visible.get(selectedAppIndex)).setHovered(false);
+        {   ((AppButton) visible.get(selectedAppIndex)).setSelected(false);
         }
         selectedAppIndex = index;
         if (index >= 0 && index < visible.size())
         {
             AppButton entry = (AppButton) visible.get(index);
-            entry.setHovered(true);
+            entry.setSelected(true);
             this.scrollToEntry(entry);
         }
     }
 
     private void clearSelection()
     {
-        this.getVisibleEntries().forEach(n -> ((AppButton) n).setHovered(false));
+        this.getVisibleEntries().forEach(n -> ((AppButton) n).setSelected(false));
         selectedAppIndex = -1;
     }
 
@@ -351,7 +355,7 @@ public class AppLauncherWidget extends PopupWidget
     }
 
     private void clearPinnedSelection()
-    {   pinnedAppsPane.getChildren().forEach(n -> ((AppButton) n).setHovered(false));
+    {   pinnedAppsPane.getChildren().forEach(n -> ((AppButton) n).setSelected(false));
     }
 
     private void setHoveredPinnedIndex(int index)
@@ -361,7 +365,7 @@ public class AppLauncherWidget extends PopupWidget
         selectedAppIndex = index;
         List<PinnedAppButton> pinned = getPinnedButtons();
         if (index >= 0 && index < pinned.size())
-        {   pinned.get(index).setHovered(true);
+        {   pinned.get(index).setSelected(true);
         }
     }
 
@@ -434,62 +438,33 @@ public class AppLauncherWidget extends PopupWidget
     {
     }
 
-    private void startGrabber()
+    /** Inserts typed text at the search field's caret. */
+    private void handleText(String text)
     {
-        this.stopGrabber();
-        grabber = new X11KeyGrabber();
-        grabber.addInterruptKeys(X11KeyGrabber.XK_SUPER_L, X11KeyGrabber.XK_SUPER_R);
-        grabber.setOnResume(() -> Platform.runLater(searchField::requestFocus));
-        grabThread = Thread.ofPlatform().start(() ->
-        {
-            try { grabber.start(token -> Platform.runLater(() -> handleKey(token))); }
-            catch (Exception e) { e.printStackTrace(); }
-        });
+        // Typing always routes to SEARCH; disable mouse interaction until mouse moves again
+        mouseInteractionEnabled = false;
+        this.setSection(Section.APPS);
+        searchField.insertText(searchField.getCaretPosition(), text);
     }
 
-    private void stopGrabber()
+    /** Dispatches a named key press to the handler for the active section. */
+    private void handleKey(X11Key key)
     {
-        if (grabber != null)
-        {
-            grabber.stop();
-            grabThread.interrupt();
-            grabber = null;
-            grabThread = null;
-        }
-    }
-
-    /**
-     * Dispatches a keygrabber protocol token to the handler for the active section.
-     * Protocol:
-     *   {@code CHAR <text>}  — printable character(s) to insert at the caret
-     *   {@code KEY <name>}   — named control key
-     */
-    private void handleKey(String token)
-    {
-        if (token.startsWith("CHAR "))
-        {
-            // Typing always routes to SEARCH; disable mouse interaction until mouse moves again
-            mouseInteractionEnabled = false;
-            this.setSection(Section.APPS);
-            searchField.insertText(searchField.getCaretPosition(), token.substring(5));
-            return;
-        }
-        if (token.startsWith("KEY ")) token = token.substring(4);
         if (activeSection == null) return;
         switch (activeSection)
         {
-            case APPS   -> handleKeyEntries(token);
-            case PINNED -> handleKeyPinned(token);
+            case APPS -> handleKeyEntries(key);
+            case PINNED -> handleKeyPinned(key);
         }
     }
 
-    private void handleKeyEntries(String key)
+    private void handleKeyEntries(X11Key key)
     {
         switch (key)
         {
-            case "Escape"    -> this.hide();
-            case "Return"    -> this.launchSelected();
-            case "Up"        ->
+            case ESCAPE -> this.hide();
+            case RETURN -> this.launchSelected();
+            case UP ->
             {
                 if (selectedAppIndex > 0)
                 {   this.mouseInteractionEnabled = false;
@@ -499,7 +474,7 @@ public class AppLauncherWidget extends PopupWidget
                 {   this.setSection(Section.PINNED);
                 }
             }
-            case "Down"      ->
+            case DOWN ->
             {
                 int last = this.getVisibleEntries().size() - 1;
                 if (selectedAppIndex < last)
@@ -507,20 +482,20 @@ public class AppLauncherWidget extends PopupWidget
                     this.setHoveredAppIndex(selectedAppIndex + 1);
                 }
             }
-            case "Left"      -> { /* TODO: entry options */ }
-            case "Right"     -> { /* TODO: entry options */ }
-            case "BackSpace" -> { searchField.deletePreviousChar(); }
-            case "Delete"    -> { searchField.deleteNextChar(); }
+            case LEFT -> { /* TODO: entry options */ }
+            case RIGHT -> { /* TODO: entry options */ }
+            case BACKSPACE -> { searchField.deletePreviousChar(); }
+            case DELETE -> { searchField.deleteNextChar(); }
         }
     }
 
-    private void handleKeyPinned(String key)
+    private void handleKeyPinned(X11Key key)
     {
         switch (key)
         {
-            case "Escape" -> this.hide();
-            case "Down"   -> this.setSection(Section.APPS);
-            case "Return" ->
+            case ESCAPE   -> this.hide();
+            case DOWN     -> this.setSection(Section.APPS);
+            case RETURN   ->
             {
                 List<PinnedAppButton> pinned = getPinnedButtons();
                 if (selectedAppIndex >= 0 && selectedAppIndex < pinned.size())
@@ -529,34 +504,34 @@ public class AppLauncherWidget extends PopupWidget
                     this.hide();
                 }
             }
-            case "Left"   ->
+            case LEFT     ->
             {
                 if (selectedAppIndex > 0)
                 {   setHoveredPinnedIndex(selectedAppIndex - 1);
                 }
             }
-            case "Right"  ->
+            case RIGHT    ->
             {
                 List<PinnedAppButton> pinned = getPinnedButtons();
                 if (selectedAppIndex < pinned.size() - 1)
                 {   setHoveredPinnedIndex(selectedAppIndex + 1);
                 }
             }
-            case "Tab"    ->
+            case TAB      ->
             {
                 List<PinnedAppButton> pinned = getPinnedButtons();
                 if (!pinned.isEmpty())
                 {   setHoveredPinnedIndex((selectedAppIndex + 1) % pinned.size());
                 }
             }
-            case "End" ->
+            case END   ->
             {
                 List<PinnedAppButton> pinned = getPinnedButtons();
                 if (!pinned.isEmpty())
                 {   setHoveredPinnedIndex(pinned.size() - 1);
                 }
             }
-            case "Home" ->
+            case HOME   ->
             {
                 List<PinnedAppButton> pinned = getPinnedButtons();
                 if (!pinned.isEmpty())
@@ -581,7 +556,7 @@ public class AppLauncherWidget extends PopupWidget
     {
         this.mouseInteractionEnabled = false;
         this.load();
-        this.startGrabber();
+        this.grabber.start();
         Thread.ofVirtual().start(() ->
         {
             Rectangle2D bounds = Monitors.getBounds("focused");
@@ -603,7 +578,7 @@ public class AppLauncherWidget extends PopupWidget
     @Override
     public void hide()
     {
-        this.stopGrabber();
+        this.grabber.stop();
         this.searchField.clear();
         this.clearSelection();
         this.activeSection = null;

@@ -2,6 +2,7 @@ package com.momosoftworks.momos.widget.bar;
 
 import com.momosoftworks.momos.util.wm.Desktops;
 import com.momosoftworks.momos.util.wm.Windows;
+import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -10,6 +11,12 @@ import javafx.scene.layout.HBox;
 
 public class TaskButton extends HBox
 {
+    // Named "wm-focused" rather than "focused" to avoid colliding with JavaFX's own
+    // built-in :focused pseudo-class, which tracks real keyboard focus.
+    private static final PseudoClass WM_FOCUSED = PseudoClass.getPseudoClass("wm-focused");
+    private static final PseudoClass MINIMIZED  = PseudoClass.getPseudoClass("minimized");
+    private static final PseudoClass URGENT     = PseudoClass.getPseudoClass("urgent");
+
     private final String windowId;
     private final ImageView icon;
     private final Label nameLabel;
@@ -58,26 +65,19 @@ public class TaskButton extends HBox
         }
     }
 
-    private void setStyleFlag(String style, boolean flag)
-    {
-        this.getStyleClass().remove(style);
-        this.nameLabel.getStyleClass().remove(style);
-        if (flag)
-        {   this.getStyleClass().add(style);
-            this.nameLabel.getStyleClass().add(style);
-        }
-    }
-
     public void setTaskFocused(boolean focused)
-    {   setStyleFlag("focused", focused);
+    {   this.pseudoClassStateChanged(WM_FOCUSED, focused);
+        this.nameLabel.pseudoClassStateChanged(WM_FOCUSED, focused);
     }
 
     public void setMinimized(boolean minimized)
-    {   setStyleFlag("minimized", minimized);
+    {   this.pseudoClassStateChanged(MINIMIZED, minimized);
+        this.nameLabel.pseudoClassStateChanged(MINIMIZED, minimized);
     }
 
     public void setUrgent(boolean urgent)
-    {   setStyleFlag("urgent", urgent);
+    {   this.pseudoClassStateChanged(URGENT, urgent);
+        this.nameLabel.pseudoClassStateChanged(URGENT, urgent);
     }
 
     public void setTitle(String title)
