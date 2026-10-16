@@ -1,10 +1,12 @@
 package com.momosoftworks.momos.widget.bar;
 
+import com.momosoftworks.momos.widget.registry.WidgetRegistry;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -43,5 +45,12 @@ public class TextClock extends VBox
         timeTimeline.play();
 
         this.getChildren().addAll(dateLabel, timeLabel);
+
+        // Calendar popup
+        this.setOnMouseClicked(e ->
+        {   if (e.getButton() == MouseButton.PRIMARY)
+            {   WidgetRegistry.CALENDAR.get().toggle(this);
+            }
+        });
     }
 }

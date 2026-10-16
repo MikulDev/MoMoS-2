@@ -19,7 +19,7 @@ import javafx.stage.StageStyle;
 
 public class BarWidget extends Widget
 {
-    private static final int BAR_HEIGHT = 50;
+    public static final int BAR_HEIGHT = 50;
     private final String monitor;
     private WorkspaceButtons workspaceButtons;
     private SystemTray systemTray;

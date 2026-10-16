@@ -6,6 +6,7 @@ import com.momosoftworks.momos.util.LazySupplier;
 import com.momosoftworks.momos.util.wm.MonitorManager;
 import com.momosoftworks.momos.widget.app_launcher.AppLauncherWidget;
 import com.momosoftworks.momos.widget.bar.BarWidget;
+import com.momosoftworks.momos.widget.calendar.CalendarWidget;
 import com.momosoftworks.momos.widget.shutdown.ShutdownMenuWidget;
 import com.momosoftworks.momos.widget.Widget;
 
@@ -23,6 +24,7 @@ public class WidgetRegistry
     public static final List<LazySupplier<BarWidget>> BARS = new ArrayList<>();
     public static final LazySupplier<AppLauncherWidget> APP_MENU = register("app_menu", AppLauncherWidget::new);
     public static final LazySupplier<ShutdownMenuWidget> SHUTDOWN_MENU = register("shutdown_menu", ShutdownMenuWidget::new);
+    public static final LazySupplier<CalendarWidget> CALENDAR = register("calendar", CalendarWidget::new);
 
     public static void registerBars(List<MonitorManager.VirtualMonitor> monitors)
     {

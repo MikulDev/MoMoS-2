@@ -1,0 +1,50 @@
+.calendar {
+    -fx-background-color: -momos-pitch-black-dd;
+    -fx-background-radius: 15px;
+    -fx-border-color: -momos-gray;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-padding: 12px 16px 16px 16px;
+}
+
+.calendar-weekdays {
+    -fx-border-color: transparent transparent -momos-white-20 transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 0 0 6px 0;
+}
+
+.calendar-weekday {
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 12px;
+}
+
+.calendar-month-name {
+    -fx-text-fill: -momos-white;
+    -fx-font-size: 14px;
+}
+
+.calendar-month-year {
+    -fx-text-fill: -momos-white-55;
+    -fx-font-size: 12px;
+}
+
+/* Day cells */
+.calendar-day {
+    -fx-background-color: -momos-dark-gray-66;
+    -fx-border-color: rgba(159, 159, 159, 0.314);
+    -fx-border-width: 1px;
+    -fx-text-fill: -momos-light-gray;
+    -fx-font-size: 13px;
+}
+
+.calendar-day:hover {
+    -fx-background-color: -momos-selected-25;
+    -fx-border-color: rgba(255, 255, 255, 0.314);
+    -fx-text-fill: -momos-white;
+}
+
+.calendar-day.today {
+    -fx-background-color: -momos-selected-40;
+    -fx-border-color: rgba(255, 255, 255, 0.314);
+    -fx-text-fill: -momos-white;
+}
