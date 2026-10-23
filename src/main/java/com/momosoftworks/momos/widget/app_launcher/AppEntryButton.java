@@ -41,6 +41,7 @@ public class AppEntryButton extends AppButton
         optionsPane.getStyleClass().add("app-entry-options");
         // Pin button
         IconButton pinButton = new IconButton(Icon.PIN.sized(24));
+        pinButton.getStyleClass().add("app-entry-button");
         pinButton.setOnAction(e -> this.parent.pinApp(app));
         optionsPane.getChildren().add(pinButton);
         optionsPane.setVisible(false);

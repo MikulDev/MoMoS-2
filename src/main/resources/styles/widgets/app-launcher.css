@@ -75,6 +75,17 @@
     -fx-background-color: transparent;
 }
 
+.app-entry-button {
+    -fx-background-color: -momos-dark-gray-cc;
+    -fx-background-radius: 8px;
+    -fx-background-insets: 1px;
+    -fx-border-color: -momos-light-gray-33;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-padding: 4px;
+    -fx-cursor: hand;
+}
+
 /* Sudo mode styling */
 .app-entry.sudo-mode {
     -fx-background-color: -momos-sudo-bg;

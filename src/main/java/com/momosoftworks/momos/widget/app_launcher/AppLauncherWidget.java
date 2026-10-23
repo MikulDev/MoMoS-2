@@ -6,6 +6,7 @@ import com.momosoftworks.momos.MomosApp;
 import com.momosoftworks.momos.util.Identifier;
 import com.momosoftworks.momos.util.image.ImageHelper;
 import com.momosoftworks.momos.util.ui.Icon;
+import com.momosoftworks.momos.util.ui.SmoothScroller;
 import com.momosoftworks.momos.util.wm.CommandHelper;
 import com.momosoftworks.momos.util.wm.Monitors;
 import com.momosoftworks.momos.util.x11.X11Key;
@@ -21,6 +22,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -53,6 +55,7 @@ public class AppLauncherWidget extends PopupWidget
     private VBox appsList;
     private HBox pinnedAppsPane;
     private ScrollPane appEntriesPane;
+    private SmoothScroller scroller;
     private List<Application> pinnedApps;
     private Set<Application> applications;
     private Section activeSection = null;
@@ -101,7 +104,9 @@ public class AppLauncherWidget extends PopupWidget
         appEntriesPane.setFitToWidth(true);
         appEntriesPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         appEntriesPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        appEntriesPane.setOnScroll(e -> mouseInteractionEnabled = true);
+        // A filter, since the scroller consumes scroll events before handlers see them
+        appEntriesPane.addEventFilter(ScrollEvent.SCROLL, e -> mouseInteractionEnabled = true);
+        this.scroller = SmoothScroller.of(appEntriesPane);
         appEntriesPane.setMinHeight(0);
         appEntriesPane.setPadding(new Insets(0, -4, 0, 0));
         VBox.setVgrow(appEntriesPane, Priority.ALWAYS);
@@ -326,6 +331,10 @@ public class AppLauncherWidget extends PopupWidget
     }
 
     private void setHoveredAppIndex(int index)
+    {   this.setHoveredAppIndex(index, true);
+    }
+
+    private void setHoveredAppIndex(int index, boolean reveal)
     {
         List<Node> visible = this.getVisibleEntries();
         if (selectedAppIndex >= 0 && selectedAppIndex < visible.size() && selectedAppIndex != index)
@@ -336,7 +345,7 @@ public class AppLauncherWidget extends PopupWidget
         {
             AppButton entry = (AppButton) visible.get(index);
             entry.setSelected(true);
-            this.scrollToEntry(entry);
+            if (reveal) this.scrollToEntry(entry);
         }
     }
 
@@ -396,12 +405,13 @@ public class AppLauncherWidget extends PopupWidget
             if (range <= 0) return;
             double minY = entry.getBoundsInParent().getMinY();
             double maxY = entry.getBoundsInParent().getMaxY();
-            double scrollY = appEntriesPane.getVvalue() * range;
+            // Measure from where an ongoing scroll is headed, so held keys keep moving it along
+            double scrollY = scroller.isScrolling() ? scroller.target() : appEntriesPane.getVvalue() * range;
             if (minY < scrollY)
-            {   appEntriesPane.setVvalue(minY / range);
+            {   scroller.scrollTo(minY);
             }
             else if (maxY > scrollY + viewportH)
-            {   appEntriesPane.setVvalue((maxY - viewportH) / range);
+            {   scroller.scrollTo(maxY - viewportH);
             }
         });
     }
@@ -417,8 +427,9 @@ public class AppLauncherWidget extends PopupWidget
         }
         List<Node> visible = this.getVisibleEntries();
         int index = visible.indexOf(entry);
+        // Don't scroll to it; an entry half under the cursor would fight the wheel's scroll
         if (index >= 0)
-        {   this.setHoveredAppIndex(index);
+        {   this.setHoveredAppIndex(index, false);
         }
         mouseInteractionEnabled = false;
     }
@@ -568,7 +579,7 @@ public class AppLauncherWidget extends PopupWidget
                 this.stage.setY(bounds.getMinY() + (bounds.getHeight() - h) / 2);
 
                 this.searchField.clear();
-                this.appEntriesPane.setVvalue(0);
+                this.scroller.jumpTo(0);
                 this.stage.show();
                 this.searchField.requestFocus();
             });
@@ -581,7 +592,8 @@ public class AppLauncherWidget extends PopupWidget
         this.grabber.stop();
         // Reset only once hidden, so picom's fade-out doesn't show the list changing
         Platform.runLater(() ->
-        {   stage.hide();
+        {   scroller.stop();
+            stage.hide();
             this.searchField.clear();
             this.clearSelection();
             this.activeSection = null;
