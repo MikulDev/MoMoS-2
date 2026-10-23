@@ -1,11 +1,11 @@
 package com.momosoftworks.momos.widget.updates;
 
+import com.momosoftworks.momos.util.ui.Icon;
 import com.momosoftworks.momos.widget.IconButton;
 import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -27,7 +27,6 @@ public class PackageEntry extends HBox
         }
     }
 
-    private static final Image UPDATE_ICON = new Image("icons/update.png", 32, 32, true, true);
     private static final PseudoClass BUSY = PseudoClass.getPseudoClass("busy");
 
     public final PackageUpdate pkg;
@@ -68,7 +67,7 @@ public class PackageEntry extends HBox
         statusLabel.getStyleClass().add("update-entry-status");
         statusLabel.setMinWidth(Region.USE_PREF_SIZE);
 
-        this.updateButton = new IconButton(UPDATE_ICON, 16);
+        this.updateButton = new IconButton(Icon.UPDATE.sized(16));
         updateButton.setOnAction(e -> onUpdate.accept(pkg));
 
         this.getChildren().addAll(title, version, statusLabel, updateButton);

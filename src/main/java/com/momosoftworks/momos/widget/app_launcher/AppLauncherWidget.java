@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.momosoftworks.momos.MomosApp;
 import com.momosoftworks.momos.util.Identifier;
 import com.momosoftworks.momos.util.image.ImageHelper;
+import com.momosoftworks.momos.util.ui.Icon;
 import com.momosoftworks.momos.util.wm.CommandHelper;
 import com.momosoftworks.momos.util.wm.Monitors;
 import com.momosoftworks.momos.util.x11.X11Key;
@@ -14,12 +15,12 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -82,11 +83,8 @@ public class AppLauncherWidget extends PopupWidget
         searchBox.setAlignment(Pos.CENTER_LEFT);
         searchBox.getStyleClass().add("search-box");
         // Icon
-        Image searchIcon = new Image(getClass().getResource("/icons/search.png").toString(), 16, 16, true, true);
-        ImageView searchIconView = new ImageView(searchIcon);
-        searchIconView.getStyleClass().add("search-icon");
-        searchIconView.setFitWidth(18);
-        searchIconView.setFitHeight(18);
+        Group searchIcon = Icon.SEARCH.sized(18).get();
+        searchIcon.getStyleClass().add("search-icon");
         // Text Field
         this.searchField = new TextField();
         searchField.setPromptText("Search...");
@@ -96,7 +94,7 @@ public class AppLauncherWidget extends PopupWidget
             this.filterResults(newVal);
             searchField.requestFocus();
         });
-        searchBox.getChildren().addAll(searchIconView, searchField);
+        searchBox.getChildren().addAll(searchIcon, searchField);
 
         this.appEntriesPane = new ScrollPane();
         appEntriesPane.setContent(this.appsList);

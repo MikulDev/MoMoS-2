@@ -1,6 +1,7 @@
 package com.momosoftworks.momos.widget.notification;
 
 import com.momosoftworks.momos.util.image.ImageHelper;
+import com.momosoftworks.momos.util.ui.Icon;
 import com.momosoftworks.momos.util.wm.CommandHelper;
 import com.momosoftworks.momos.widget.IconButton;
 import javafx.animation.PauseTransition;
@@ -42,7 +43,6 @@ public class NotificationHandler implements INotifications
     private static final int   BAR_HEIGHT     = 60;  // bar (50px) + gap (10px)
     private static final int   POPUP_GAP      = 8;
     private static final int   DEFAULT_TIMEOUT = 5000;
-    private static final Image CLOSE_ICON = new Image("icons/close.png", 12, 12, true, true);
 
     private DBusConnection connection;
     private final AtomicInteger idCounter  = new AtomicInteger(1);
@@ -151,7 +151,7 @@ public class NotificationHandler implements INotifications
         VBox titleBox = new VBox(2, titleLabel, appLabel);
         HBox.setHgrow(titleBox, Priority.ALWAYS);
 
-        IconButton closeBtn = new IconButton(CLOSE_ICON, 12);
+        IconButton closeBtn = new IconButton(Icon.CLOSE.sized(12));
 
         header.getChildren().addAll(titleBox, closeBtn);
 

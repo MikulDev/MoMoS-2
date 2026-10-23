@@ -23,11 +23,11 @@
     -fx-border-color: rgba(255, 255, 255, 0.4);
 }
 
-.updates .image-button .image-view {
+.updates .image-button .icon {
     -fx-opacity: 0.5;
 }
 
-.updates .image-button:hover .image-view {
+.updates .image-button:hover .icon {
     -fx-opacity: 1;
 }
 

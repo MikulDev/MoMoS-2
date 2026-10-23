@@ -1,6 +1,7 @@
 package com.momosoftworks.momos.widget.updates;
 
 import com.momosoftworks.momos.util.Identifier;
+import com.momosoftworks.momos.util.ui.Icon;
 import com.momosoftworks.momos.util.ui.SmoothScroller;
 import com.momosoftworks.momos.util.wm.CommandHelper;
 import com.momosoftworks.momos.util.wm.Monitors;
@@ -23,7 +24,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -58,8 +58,6 @@ public class UpdatesWidget extends PopupWidget
     private static final int POPUP_WIDTH = 440;
     private static final int LIST_MAX_HEIGHT = 420;
     private static final int SCREEN_MARGIN = 10;
-    private static final Image UPDATE_ALL_ICON = new Image("icons/update_all.png", 40, 40, true, true);
-    private static final Image REFRESH_ICON = new Image("icons/refresh.png", 40, 40, true, true);
     private static final DateTimeFormatter LOG_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final ReadOnlyIntegerWrapper count = new ReadOnlyIntegerWrapper(0);
@@ -103,9 +101,9 @@ public class UpdatesWidget extends PopupWidget
         this.countLabel = new Label();
         countLabel.getStyleClass().add("updates-count");
 
-        this.updateAllButton = new IconButton(UPDATE_ALL_ICON, 20);
+        this.updateAllButton = new IconButton(Icon.UPDATE_ALL.sized(20));
         updateAllButton.setOnAction(e -> this.updateAll());
-        this.refreshButton = new IconButton(REFRESH_ICON, 20);
+        this.refreshButton = new IconButton(Icon.REFRESH.sized(20));
         refreshButton.setOnAction(e -> this.checkForUpdates());
 
         BorderPane header = new BorderPane(countLabel, null, refreshButton, null, updateAllButton);

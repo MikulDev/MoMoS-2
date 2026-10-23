@@ -12,7 +12,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -60,7 +59,7 @@ public class ShutdownMenuWidget extends PopupWidget
 
     private VBox createAction(ShutdownAction action)
     {
-        Button button = new Button(null, new ImageView(action.icon()));
+        Button button = new Button(null, action.icon().sized(38).get());
         button.getStyleClass().add("shutdown-button");
         button.setOnAction(e ->
         {   CommandHelper.execute(action.command());

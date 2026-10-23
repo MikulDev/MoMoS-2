@@ -1,21 +1,21 @@
 package com.momosoftworks.momos.widget.shutdown;
 
-import javafx.scene.image.Image;
+import com.momosoftworks.momos.util.ui.Icon;
 
 public enum ShutdownAction
 {
-    SHUT_DOWN("Shut Down", "icons/shutdown.png", "shutdown", "now"),
-    RESTART("Restart", "icons/restart.png", "reboot"),
-    SLEEP("Sleep", "icons/sleep.png", "systemctl", "suspend");
+    SHUT_DOWN("Shut Down", Icon.SHUTDOWN, "shutdown", "now"),
+    RESTART("Restart", Icon.RESTART, "reboot"),
+    SLEEP("Sleep", Icon.SLEEP, "systemctl", "suspend");
 
     private final String label;
-    private final Image icon;
+    private final Icon icon;
     private final String[] command;
 
-    ShutdownAction(String label, String iconPath, String... command)
+    ShutdownAction(String label, Icon icon, String... command)
     {
         this.label = label;
-        this.icon = new Image(iconPath, 30, 30, true, true);
+        this.icon = icon.sized(30);
         this.command = command;
     }
 
@@ -23,7 +23,7 @@ public enum ShutdownAction
     {   return label;
     }
 
-    public Image icon()
+    public Icon icon()
     {   return icon;
     }
 

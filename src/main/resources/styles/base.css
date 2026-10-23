@@ -388,7 +388,7 @@
 .shutdown-menu {
     -fx-background-color: -momos-pitch-black-88;
     -fx-background-radius: 12px;
-    -fx-border-color: transparent;
+    -fx-border-color: -momos-gray-55;
     -fx-border-width: 1px;
     -fx-border-radius: 12px;
     -fx-padding: 16px;
@@ -400,7 +400,7 @@
     -fx-border-color: -momos-gray-55;
     -fx-border-width: 1px;
     -fx-border-radius: 8px;
-    -fx-padding: 17px;
+    -fx-padding: 12px;
     -fx-cursor: hand;
     -fx-alignment: center;
 }
@@ -413,7 +413,7 @@
 
 .shutdown-menu .shutdown-label {
     -fx-text-fill: -momos-light-gray-d0;
-    -fx-font-size: 12px;
+    -fx-font-size: 14px;
 }
 
 
