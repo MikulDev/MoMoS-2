@@ -13,7 +13,6 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
@@ -110,6 +109,11 @@ public class CalendarWidget extends PopupWidget
         stage.setTitle("momos-calendar");
         stage.initStyle(StageStyle.TRANSPARENT);
         stage.setAlwaysOnTop(true);
+        // Init before showing for the first time to get size
+        stage.setX(-32000);
+        stage.setY(-32000);
+        stage.show();
+        stage.hide();
         return stage;
     }
 
@@ -270,16 +274,16 @@ public class CalendarWidget extends PopupWidget
 
     private void showAt(double right, double top)
     {
+        // picom animates the window as it opens, so it must already be in place when shown. The calendar's
+        // width never changes, and the stage keeps it while hidden
+        stage.setX(right - stage.getWidth() - SCREEN_MARGIN);
+        stage.setY(top + SCREEN_MARGIN);
         // Hiding the window makes JavaFX forget its scene's styles until it's shown again, so CSS applied
         // before showing can't resolve lookups defined on .root (the -momos-* colors). Show first, then lay out
         stage.show();
         grabber.start();
         clickWatcher.start();
         resetToToday();
-        Parent root = stage.getScene().getRoot();
-        root.applyCss();
-        stage.setX(right - root.prefWidth(-1) - SCREEN_MARGIN);
-        stage.setY(top + SCREEN_MARGIN);
     }
 
     @Override

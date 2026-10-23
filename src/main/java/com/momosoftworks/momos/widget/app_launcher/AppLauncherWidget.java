@@ -121,6 +121,8 @@ public class AppLauncherWidget extends PopupWidget
         loadStylesheet("app-launcher", scene);
 
         stage.setScene(scene);
+        // picom matches on this to animate the launcher
+        stage.setTitle("momos-app-launcher");
         stage.initStyle(StageStyle.TRANSPARENT);
 
         return stage;
@@ -579,9 +581,12 @@ public class AppLauncherWidget extends PopupWidget
     public void hide()
     {
         this.grabber.stop();
-        this.searchField.clear();
-        this.clearSelection();
-        this.activeSection = null;
-        Platform.runLater(() -> stage.hide());
+        // Reset only once hidden, so picom's fade-out doesn't show the list changing
+        Platform.runLater(() ->
+        {   stage.hide();
+            this.searchField.clear();
+            this.clearSelection();
+            this.activeSection = null;
+        });
     }
 }
