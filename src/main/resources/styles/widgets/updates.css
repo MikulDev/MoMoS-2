@@ -1,0 +1,83 @@
+.updates {
+    -fx-background-color: -momos-pitch-black-dd;
+    -fx-background-radius: 15px;
+    -fx-border-color: -momos-gray;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-padding: 12px;
+}
+
+.updates-count {
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 13px;
+}
+
+/* Header buttons and per-package update buttons */
+.updates .image-button {
+    -fx-background-color: -momos-dark-gray-aa;
+    -fx-border-color: rgba(159, 159, 159, 0.267);
+}
+
+.updates .image-button:hover {
+    -fx-background-color: rgba(89, 89, 89, 0.667);
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+}
+
+.updates .image-button .image-view {
+    -fx-opacity: 0.5;
+}
+
+.updates .image-button:hover .image-view {
+    -fx-opacity: 1;
+}
+
+.updates-list {
+    -fx-padding: 0 6px 0 0;
+}
+
+.updates .scroll-bar {
+    -fx-padding: 0 2px;
+}
+
+/* Package rows */
+.update-entry {
+    -fx-background-color: -momos-pitch-black-55;
+    -fx-background-radius: 4px;
+    -fx-border-color: -momos-light-gray-33;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-padding: 6px 6px 6px 10px;
+}
+
+.update-entry:hover {
+    -fx-background-color: -momos-dark-gray-dd;
+    -fx-border-color: -momos-white-55;
+}
+
+.update-entry-name {
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 12px;
+}
+
+.update-entry:hover .update-entry-name {
+    -fx-text-fill: -momos-white;
+}
+
+.update-entry-aur {
+    -fx-text-fill: -momos-selected;
+    -fx-font-size: 10px;
+}
+
+.update-entry-version {
+    -fx-text-fill: -momos-light-gray-b0;
+    -fx-font-size: 11px;
+}
+
+.update-entry-status {
+    -fx-text-fill: -momos-white-88;
+    -fx-font-size: 10px;
+}
+
+.update-entry:busy .update-entry-name {
+    -fx-text-fill: -momos-white-55;
+}

@@ -184,3 +184,34 @@
     -fx-pref-width: 1px;
     -fx-margin: 4px 12px;
 }
+/* Package updates */
+.updates-button {
+    -fx-padding: 6px 8px;
+    -fx-background-radius: 6px;
+    -fx-border-color: transparent;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-cursor: hand;
+}
+
+.updates-button:hover {
+    -fx-background-color: -momos-mid-gray-dd;
+    -fx-border-color: -momos-white-20;
+}
+
+.updates-button-icon {
+    -fx-opacity: 0.6;
+}
+
+.updates-button:hover .updates-button-icon {
+    -fx-opacity: 1;
+}
+
+.updates-button-count {
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 13px;
+}
+
+.updates-button:hover .updates-button-count {
+    -fx-text-fill: -momos-white;
+}
