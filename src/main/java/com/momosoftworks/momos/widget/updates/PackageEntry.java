@@ -67,7 +67,7 @@ public class PackageEntry extends HBox
         statusLabel.getStyleClass().add("update-entry-status");
         statusLabel.setMinWidth(Region.USE_PREF_SIZE);
 
-        this.updateButton = new IconButton(Icon.UPDATE.sized(16));
+        this.updateButton = new IconButton(Icon.UPDATE.sized(18));
         updateButton.setOnAction(e -> onUpdate.accept(pkg));
 
         this.getChildren().addAll(title, version, statusLabel, updateButton);

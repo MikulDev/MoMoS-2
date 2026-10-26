@@ -20,7 +20,7 @@ public class UpdatesButton extends HBox
         this.getStyleClass().add("updates-button");
         this.setMaxHeight(USE_PREF_SIZE);
 
-        Group icon = Icon.PACKAGE.get();
+        Group icon = Icon.PACKAGE.sized(20).get();
         icon.getStyleClass().add("updates-button-icon");
 
         Label count = new Label();

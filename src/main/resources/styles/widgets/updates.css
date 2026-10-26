@@ -56,7 +56,7 @@
 
 .update-entry-name {
     -fx-text-fill: -momos-white-aa;
-    -fx-font-size: 12px;
+    -fx-font-size: 14px;
 }
 
 .update-entry:hover .update-entry-name {
@@ -65,12 +65,12 @@
 
 .update-entry-aur {
     -fx-text-fill: -momos-selected;
-    -fx-font-size: 10px;
+    -fx-font-size: 11px;
 }
 
 .update-entry-version {
     -fx-text-fill: -momos-light-gray-b0;
-    -fx-font-size: 11px;
+    -fx-font-size: 12px;
 }
 
 .update-entry-status {
