@@ -44,6 +44,8 @@ public abstract class JsonCodec<T>
     }
 
     public static JsonCodec<Integer> INT     = create(Integer.class, JsonPrimitive::new, JsonElement::getAsInt);
+    // Typed as the primitive so it matches constructors that take a plain long
+    public static JsonCodec<Long>    LONG    = create(long.class,    JsonPrimitive::new, JsonElement::getAsLong);
     public static JsonCodec<String>  STRING  = create(String.class,  JsonPrimitive::new, JsonElement::getAsString);
     public static JsonCodec<Boolean> BOOLEAN = create(Boolean.class, JsonPrimitive::new, JsonElement::getAsBoolean);
     public static JsonCodec<Double>  DOUBLE  = create(Double.class,  JsonPrimitive::new, JsonElement::getAsDouble);

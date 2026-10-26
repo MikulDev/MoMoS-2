@@ -184,8 +184,9 @@
     -fx-pref-width: 1px;
     -fx-margin: 4px 12px;
 }
-/* Package updates */
-.updates-button {
+/* Package updates and notifications */
+.updates-button,
+.notifications-button {
     -fx-padding: 6px 8px;
     -fx-background-radius: 6px;
     -fx-border-color: transparent;
@@ -194,24 +195,29 @@
     -fx-cursor: hand;
 }
 
-.updates-button:hover {
+.updates-button:hover,
+.notifications-button:hover {
     -fx-background-color: -momos-mid-gray-dd;
     -fx-border-color: -momos-white-20;
 }
 
-.updates-button-icon {
+.updates-button-icon,
+.notifications-button-icon {
     -fx-opacity: 0.6;
 }
 
-.updates-button:hover .updates-button-icon {
+.updates-button:hover .updates-button-icon,
+.notifications-button:hover .notifications-button-icon {
     -fx-opacity: 1;
 }
 
-.updates-button-count {
+.updates-button-count,
+.notifications-button-count {
     -fx-text-fill: -momos-white-aa;
     -fx-font-size: 13px;
 }
 
-.updates-button:hover .updates-button-count {
+.updates-button:hover .updates-button-count,
+.notifications-button:hover .notifications-button-count {
     -fx-text-fill: -momos-white;
 }

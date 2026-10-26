@@ -23,6 +23,7 @@ import org.freedesktop.dbus.types.Variant;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,6 +111,14 @@ public class MomosApp extends Application
 
     public static File getConfigFile()
     {   return new File(System.getenv("HOME") + "/.config/momos/config.json");
+    }
+
+    /** Where widgets keep logs and other files that aren't settings. */
+    public static Path getCacheDir()
+    {
+        String cache = System.getenv("XDG_CACHE_HOME");
+        Path cacheDir = cache != null && !cache.isEmpty() ? Path.of(cache) : Path.of(System.getProperty("user.home"), ".cache");
+        return cacheDir.resolve("momos");
     }
 
     public static JsonElement getConfigSetting(String key)

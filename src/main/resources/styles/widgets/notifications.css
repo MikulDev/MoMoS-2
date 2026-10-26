@@ -1,0 +1,196 @@
+/*******************************************************************************
+ * History popup                                                               *
+ ******************************************************************************/
+
+.notifications {
+    -fx-background-color: -momos-pitch-black-dd;
+    -fx-background-radius: 15px;
+    -fx-border-color: -momos-gray;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-padding: 12px;
+}
+
+.notifications-title {
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 13px;
+    -fx-padding: 4px 0;
+}
+
+/* Clear all button */
+.notifications .image-button {
+    -fx-background-color: -momos-dark-gray-aa;
+    -fx-border-color: rgba(159, 159, 159, 0.267);
+}
+
+.notifications .image-button:hover {
+    -fx-background-color: rgba(89, 89, 89, 0.667);
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+}
+
+.notifications .image-button .icon {
+    -fx-opacity: 0.5;
+}
+
+.notifications .image-button:hover .icon {
+    -fx-opacity: 1;
+}
+
+.notifications-list {
+    -fx-padding: 0 6px 0 0;
+}
+
+.notifications .scroll-bar {
+    -fx-padding: 0 2px;
+}
+
+/* History entries */
+.notification-entry {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6px;
+    -fx-border-color: -momos-light-gray-33;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-padding: 8px;
+    -fx-cursor: hand;
+}
+
+.notification-entry:hover {
+    -fx-background-color: -momos-dark-gray-dd;
+    -fx-border-color: -momos-white-55;
+}
+
+.notification-entry-title {
+    -fx-text-fill: -momos-white-dd;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.notification-entry-body {
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 12px;
+}
+
+.notification-entry-source,
+.notification-entry-time {
+    -fx-text-fill: -momos-light-gray-b0;
+    -fx-font-size: 11px;
+}
+
+.notification-entry-placeholder {
+    -fx-opacity: 0.25;
+}
+
+/* Covers the icon while the entry is hovered */
+.notifications .notification-entry-close {
+    -fx-background-color: -momos-dark-gray;
+    -fx-border-color: rgba(159, 159, 159, 0.267);
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-padding: 0;
+    -fx-min-width: 32px;
+    -fx-min-height: 32px;
+    -fx-pref-width: 32px;
+    -fx-pref-height: 32px;
+}
+
+.notifications .notification-entry-close:hover {
+    -fx-background-color: -momos-gray;
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Full view of the hovered entry */
+.notification-preview-separator {
+    -fx-background-color: -momos-light-gray-33;
+    -fx-min-width: 1px;
+    -fx-pref-width: 1px;
+    -fx-max-width: 1px;
+}
+
+.notification-preview-title {
+    -fx-text-fill: -momos-white-dd;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.notification-preview-source {
+    -fx-text-fill: -momos-light-gray-b0;
+    -fx-font-size: 11px;
+}
+
+.notification-preview-text {
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 13px;
+}
+
+
+/*******************************************************************************
+ * On-screen notifications                                                     *
+ ******************************************************************************/
+
+.notification-toast {
+    -fx-background-color: rgba(22, 22, 22, 0.69);
+    -fx-background-radius: 15px;
+    -fx-border-color: -momos-gray;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-padding: 16px;
+    -fx-cursor: hand;
+}
+
+.notification-toast:hover {
+    -fx-border-color: -momos-white-55;
+}
+
+.notification-toast-title {
+    -fx-text-fill: -momos-white-dd;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.notification-toast-source {
+    -fx-text-fill: -momos-light-gray-b0;
+    -fx-font-size: 11px;
+}
+
+.notification-toast-body {
+    -fx-text-fill: -momos-white-bb;
+    -fx-font-size: 13px;
+}
+
+.notification-toast .image-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 4px;
+}
+
+.notification-toast .image-button:hover {
+    -fx-background-color: -momos-gray-55;
+    -fx-border-color: -momos-white-44;
+}
+
+.notification-toast .image-button .icon {
+    -fx-opacity: 0.6;
+}
+
+.notification-toast .image-button:hover .icon {
+    -fx-opacity: 1;
+}
+
+.notification-toast-action {
+    -fx-background-color: -momos-dark-gray-aa;
+    -fx-background-radius: 4px;
+    -fx-border-color: rgba(159, 159, 159, 0.267);
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-text-fill: -momos-white-aa;
+    -fx-font-size: 12px;
+    -fx-padding: 4px 10px;
+    -fx-cursor: hand;
+}
+
+.notification-toast-action:hover {
+    -fx-background-color: -momos-gray-88;
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+    -fx-text-fill: -momos-white;
+}

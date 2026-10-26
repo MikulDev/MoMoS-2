@@ -5,12 +5,65 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Windows
 {
+    /** A managed window. {@code pid} is -1 if the window doesn't say which process owns it */
+    public record WindowInfo(String id, long pid, String wmClass, String title) {}
+
+    private static final Pattern PID_PROPERTY = Pattern.compile("^_NET_WM_PID\\(CARDINAL\\) = (\\d+)$", Pattern.MULTILINE);
+    // WM_CLASS holds the instance name, then the class name
+    private static final Pattern CLASS_PROPERTY = Pattern.compile("^WM_CLASS\\([^)]*\\) = \"[^\"]*\", \"([^\"]*)\"$", Pattern.MULTILINE);
+    // _NET_WM_NAME is requested first, so it wins over WM_NAME when a window has both
+    private static final Pattern NAME_PROPERTY = Pattern.compile("^(?:_NET_WM_NAME|WM_NAME)\\([^)]*\\) = \"(.*)\"$", Pattern.MULTILINE);
+    private static final Pattern OCTAL_ESCAPE = Pattern.compile("\\\\([0-7]{3})|\\\\(.)");
+
+    /** Every window BSPWM manages, across all desktops. Runs a process per window, so keep it off the FX thread */
+    public static List<WindowInfo> getAll()
+    {
+        List<WindowInfo> windows = new ArrayList<>();
+        for (String id : CommandHelper.executeWithResult("bspc", "query", "-N", "-n", ".window").split("\\R"))
+        {
+            id = id.trim();
+            // Anything else is an error message, e.g. when there are no windows at all
+            if (!id.startsWith("0x")) continue;
+
+            String props = CommandHelper.executeWithResult("xprop", "-id", id, "_NET_WM_PID", "WM_CLASS", "_NET_WM_NAME", "WM_NAME");
+            Matcher pid = PID_PROPERTY.matcher(props);
+            Matcher wmClass = CLASS_PROPERTY.matcher(props);
+            Matcher name = NAME_PROPERTY.matcher(props);
+            windows.add(new WindowInfo(id,
+                                       pid.find() ? Long.parseLong(pid.group(1)) : -1,
+                                       wmClass.find() ? unescape(wmClass.group(1)) : "",
+                                       name.find() ? unescape(name.group(1)) : ""));
+        }
+        return windows;
+    }
+
+    /** xprop prints non-ASCII bytes as octal escapes ({@code \342\200\224}), and escapes quotes and backslashes */
+    private static String unescape(String value)
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        Matcher m = OCTAL_ESCAPE.matcher(value);
+        int last = 0;
+        while (m.find())
+        {
+            bytes.writeBytes(value.substring(last, m.start()).getBytes(StandardCharsets.UTF_8));
+            if (m.group(1) != null) bytes.write(Integer.parseInt(m.group(1), 8));
+            else bytes.writeBytes(m.group(2).getBytes(StandardCharsets.UTF_8));
+            last = m.end();
+        }
+        bytes.writeBytes(value.substring(last).getBytes(StandardCharsets.UTF_8));
+        return bytes.toString(StandardCharsets.UTF_8);
+    }
+
     /**
      * Fetches the _NET_WM_ICON for a given X window ID and returns the largest
      * available icon as a JavaFX Image, or null if unavailable.

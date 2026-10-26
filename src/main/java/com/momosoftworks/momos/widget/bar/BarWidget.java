@@ -5,6 +5,7 @@ import com.momosoftworks.momos.util.wm.MonitorManager;
 import com.momosoftworks.momos.util.wm.Monitors;
 import com.momosoftworks.momos.widget.Widget;
 import com.momosoftworks.momos.widget.bar.systray.SystemTray;
+import com.momosoftworks.momos.widget.notification.NotificationsButton;
 import com.momosoftworks.momos.widget.updates.UpdatesButton;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -41,7 +42,7 @@ public class BarWidget extends Widget
         // Left section - workspace indicator for this monitor only
         HBox left = new HBox(8);
 
-        left.getChildren().addAll(new UpdatesButton(), divider());
+        left.getChildren().addAll(new NotificationsButton(), new UpdatesButton(), divider());
 
         workspaceButtons = new WorkspaceButtons(monitor);
         left.getChildren().add(workspaceButtons);

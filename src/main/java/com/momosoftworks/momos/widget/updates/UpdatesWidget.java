@@ -1,5 +1,6 @@
 package com.momosoftworks.momos.widget.updates;
 
+import com.momosoftworks.momos.MomosApp;
 import com.momosoftworks.momos.util.Identifier;
 import com.momosoftworks.momos.util.ui.Icon;
 import com.momosoftworks.momos.util.ui.SmoothScroller;
@@ -264,10 +265,7 @@ public class UpdatesWidget extends PopupWidget
     }
 
     private static Path getErrorLog()
-    {
-        String cache = System.getenv("XDG_CACHE_HOME");
-        Path cacheDir = cache != null && !cache.isEmpty() ? Path.of(cache) : Path.of(System.getProperty("user.home"), ".cache");
-        return cacheDir.resolve("momos").resolve("update_errors.log");
+    {   return MomosApp.getCacheDir().resolve("update_errors.log");
     }
 
     /* View */
