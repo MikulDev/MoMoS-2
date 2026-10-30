@@ -167,6 +167,7 @@ public class NotificationToasts
             closeButton.addEventHandler(MouseEvent.MOUSE_CLICKED, MouseEvent::consume);
 
             HBox header = new HBox(8, title, source, closeButton);
+            header.getStyleClass().add("notification-toast-header");
             header.setAlignment(Pos.CENTER_LEFT);
 
             VBox text = new VBox(4, header);
@@ -215,6 +216,8 @@ public class NotificationToasts
             root.getChildren().add(text);
 
             closeButton.visibleProperty().bind(root.hoverProperty());
+            closeButton.managedProperty().bind(root.hoverProperty());
+            source.visibleProperty().bind(root.hoverProperty().not());
             root.hoverProperty().addListener((obs, wasHovered, hovered) ->
             {
                 if (hovered) timer.pause();

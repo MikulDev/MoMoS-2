@@ -16,7 +16,7 @@
     -momos-light-gray: #9F9F9F;
     -momos-gray: #595959;
     -momos-dark-gray: #252525;
-    -momos-black: #161616;
+    -momos-black: #181818;
     -momos-pitch-black: #131313;
     -momos-white: #ffffff;
     -momos-selected: #83B3F9;
@@ -189,9 +189,9 @@
 }
 
 .scroll-bar .track {
-    -fx-background-color: -momos-dark-gray-66;
+    -fx-background-color: -momos-pitch-black-bb;
     -fx-background-radius: 6px;
-    -fx-border-color: -momos-gray-55;
+    -fx-border-color: -momos-gray-40;
     -fx-border-width: 1px;
     -fx-border-radius: 6px;
 }

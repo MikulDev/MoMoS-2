@@ -59,6 +59,7 @@ public class NotificationEntry extends HBox
         icon.setFitHeight(ICON_SIZE);
         icon.setPreserveRatio(true);
         icon.setSmooth(true);
+        icon.visibleProperty().bind(this.hoverProperty().not());
         Thread.ofVirtual().start(() ->
         {   Image image = record.loadIcon(ICON_RESOLUTION);
             Platform.runLater(() -> icon.setImage(image));

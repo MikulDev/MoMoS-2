@@ -3,29 +3,40 @@
  ******************************************************************************/
 
 .notifications {
-    -fx-background-color: -momos-pitch-black-dd;
+    -fx-background-color: -momos-pitch-black-bb;
     -fx-background-radius: 15px;
     -fx-border-color: -momos-gray;
-    -fx-border-width: 1px;
+    -fx-border-width: 1.5px;
     -fx-border-radius: 15px;
-    -fx-padding: 12px;
+    -fx-padding: 8px;
+}
+
+.notifications-header {
+    -fx-background-color: -momos-dark-gray-aa;
+    -fx-background-radius: 8px;
+    -fx-border-color: linear-gradient(to bottom, rgba(159, 159, 159, 0.267), rgba(159, 159, 159, 0.1));
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-padding: 8px 8px 8px 12px;
+    -fx-spacing: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 8, 0.5, 0, 1);
 }
 
 .notifications-title {
     -fx-text-fill: -momos-white-aa;
-    -fx-font-size: 13px;
-    -fx-padding: 4px 0;
+    -fx-font-size: 15px;
+    -fx-padding: 4px 2px;
 }
 
 /* Clear all button */
 .notifications .image-button {
-    -fx-background-color: -momos-dark-gray-aa;
-    -fx-border-color: rgba(159, 159, 159, 0.267);
+    -fx-background-color: -momos-gray-55;
+    -fx-border-color: rgba(159, 159, 159, 0.2);
 }
 
 .notifications .image-button:hover {
     -fx-background-color: rgba(89, 89, 89, 0.667);
-    -fx-border-color: rgba(255, 255, 255, 0.4);
+    -fx-border-color: rgba(255, 255, 255, 0.3);
 }
 
 .notifications .image-button .icon {
@@ -37,19 +48,31 @@
 }
 
 .notifications-list {
-    -fx-padding: 0 6px 0 0;
+    -fx-padding: 12px;
+    -fx-spacing: 12px;
 }
 
-.notifications .scroll-bar {
-    -fx-padding: 0 2px;
+/* On the viewport rather than the list, so it stays put while scrolling and leaves out the scroll bar */
+.notifications-scroll > .viewport {
+    -fx-background-color: -momos-pitch-black-bb;
+    -fx-background-radius: 8px;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+}
+
+/* The left padding is the gap between the list and the track, so the width grows with it to keep the track 9px wide */
+.notifications .scroll-bar:vertical {
+    -fx-padding: 0 3px 0 9px;
+    -fx-pref-width: 21px;
 }
 
 /* History entries */
 .notification-entry {
-    -fx-background-color: transparent;
+    -fx-background-color: -momos-dark-gray-dd;
     -fx-background-radius: 6px;
-    -fx-border-color: -momos-light-gray-33;
-    -fx-border-width: 1px;
+    -fx-border-color: linear-gradient(to bottom, -momos-light-gray-33, rgba(159, 159, 159, 0.1));
+    -fx-border-width: 1.5px;
     -fx-border-radius: 6px;
     -fx-padding: 8px;
     -fx-cursor: hand;
@@ -57,7 +80,7 @@
 
 .notification-entry:hover {
     -fx-background-color: -momos-dark-gray-dd;
-    -fx-border-color: -momos-white-55;
+    -fx-border-color: -momos-white-33;
 }
 
 .notification-entry-title {
@@ -83,11 +106,6 @@
 
 /* Covers the icon while the entry is hovered */
 .notifications .notification-entry-close {
-    -fx-background-color: -momos-dark-gray;
-    -fx-border-color: rgba(159, 159, 159, 0.267);
-    -fx-background-radius: 0;
-    -fx-border-radius: 0;
-    -fx-padding: 0;
     -fx-min-width: 32px;
     -fx-min-height: 32px;
     -fx-pref-width: 32px;
@@ -95,8 +113,6 @@
 }
 
 .notifications .notification-entry-close:hover {
-    -fx-background-color: -momos-gray;
-    -fx-border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Full view of the hovered entry */
@@ -105,6 +121,13 @@
     -fx-min-width: 1px;
     -fx-pref-width: 1px;
     -fx-max-width: 1px;
+}
+
+.notification-preview-content {
+    -fx-background-color: -momos-pitch-black-dd;
+    -fx-background-radius: 15px;
+    -fx-background-insets: -8px;
+    -fx-padding: 8px;
 }
 
 .notification-preview-title {
@@ -130,10 +153,10 @@
 
 .notification-toast {
     -fx-background-color: rgba(22, 22, 22, 0.69);
-    -fx-background-radius: 15px;
-    -fx-border-color: -momos-gray;
-    -fx-border-width: 1px;
-    -fx-border-radius: 15px;
+    -fx-background-radius: 10px;
+    -fx-border-color: -momos-white-33;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 10px;
     -fx-padding: 16px;
     -fx-cursor: hand;
 }
@@ -151,6 +174,21 @@
 .notification-toast-source {
     -fx-text-fill: -momos-light-gray-b0;
     -fx-font-size: 11px;
+    -fx-pref-height: 32px;
+}
+
+.notification-toast-header {
+    -fx-padding: 0 0 -4px 0;
+}
+
+/* Nudged up toward the corner without moving the title or body */
+.notification-toast-source,
+.notification-toast-close {
+    -fx-translate-y: -8px;
+}
+
+.notification-toast-close {
+    -fx-translate-x: 4px;
 }
 
 .notification-toast-body {
@@ -159,9 +197,12 @@
 }
 
 .notification-toast .image-button {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-padding: 4px;
+    -fx-background-color: -momos-gray-55;
+    -fx-border-color: rgba(159, 159, 159, 0.2);
+    -fx-min-width: 24px;
+    -fx-min-height: 24px;
+    -fx-max-width: 24px;
+    -fx-max-height: 24px;
 }
 
 .notification-toast .image-button:hover {
@@ -181,7 +222,7 @@
     -fx-background-color: -momos-dark-gray-aa;
     -fx-background-radius: 4px;
     -fx-border-color: rgba(159, 159, 159, 0.267);
-    -fx-border-width: 1px;
+    -fx-border-width: 1.5px;
     -fx-border-radius: 4px;
     -fx-text-fill: -momos-white-aa;
     -fx-font-size: 12px;

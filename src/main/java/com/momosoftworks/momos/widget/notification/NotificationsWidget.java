@@ -22,10 +22,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -95,20 +92,25 @@ public class NotificationsWidget extends PopupWidget
         this.title = new Label();
         title.getStyleClass().add("notifications-title");
 
-        this.clearButton = new IconButton(Icon.CLEAR.sized(24));
+        this.clearButton = new IconButton(Icon.CLEAR.sized(20));
         clearButton.setOnAction(e ->
         {   history.clear();
             this.hide();
         });
 
         // The title stays centered across the whole list, rather than in the space beside the button
-        StackPane header = new StackPane(title, clearButton);
-        StackPane.setAlignment(clearButton, Pos.CENTER_LEFT);
+        Node notifIcon = Icon.NOTIFICATION.sized(20).colored(Color.GRAY).get();
+        Region headerSpacer = new Region();
+        HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+        HBox header = new HBox(notifIcon, title, headerSpacer, clearButton);
+        header.getStyleClass().add("notifications-header");
+        header.setAlignment(Pos.CENTER_LEFT);
 
         this.entries = new VBox(6);
         entries.getStyleClass().add("notifications-list");
 
         this.entriesPane = new ScrollPane(entries);
+        this.entriesPane.getStyleClass().add("notifications-scroll");
         entriesPane.setFitToWidth(true);
         entriesPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         entriesPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -221,6 +223,7 @@ public class NotificationsWidget extends PopupWidget
         previewText.setMaxTextHeight(LIST_MAX_HEIGHT);
 
         VBox content = new VBox(8, header, previewText);
+        content.getStyleClass().add("notification-preview-content");
         content.setMinWidth(PREVIEW_WIDTH);
         content.setPrefWidth(PREVIEW_WIDTH);
         content.setMaxWidth(PREVIEW_WIDTH);
