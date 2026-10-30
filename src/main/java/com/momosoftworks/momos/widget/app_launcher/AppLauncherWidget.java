@@ -11,9 +11,10 @@ import com.momosoftworks.momos.util.wm.CommandHelper;
 import com.momosoftworks.momos.util.wm.Monitors;
 import com.momosoftworks.momos.util.x11.X11Key;
 import com.momosoftworks.momos.util.x11.X11KeyGrabber;
+import com.momosoftworks.momos.widget.IconButton;
 import com.momosoftworks.momos.widget.PopupWidget;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -44,7 +45,7 @@ import java.util.stream.Stream;
 
 public class AppLauncherWidget extends PopupWidget
 {
-    private enum Section { PINNED, APPS }
+    private enum Section { PINNED, ACTIONS, APPS }
 
     private TextField searchField;
     private final X11KeyGrabber grabber = new X11KeyGrabber()
@@ -54,6 +55,7 @@ public class AppLauncherWidget extends PopupWidget
         .onText(text -> Platform.runLater(() -> handleText(text)));
     private VBox appsList;
     private HBox pinnedAppsPane;
+    private List<IconButton> actionButtons;
     private ScrollPane appEntriesPane;
     private SmoothScroller scroller;
     private List<Application> pinnedApps;
@@ -69,21 +71,37 @@ public class AppLauncherWidget extends PopupWidget
     @Override
     public Stage initStage(Stage stage)
     {
-        VBox root = new VBox(10);
+        VBox root = new VBox(6);
         root.getStyleClass().add("app-launcher");
 
         pinnedAppsPane = new HBox(4);
         pinnedAppsPane.setAlignment(Pos.CENTER_LEFT);
         pinnedAppsPane.getStyleClass().add("pinned-apps");
+        // An empty header would just be a bare strip of background
+        pinnedAppsPane.visibleProperty().bind(Bindings.isNotEmpty(pinnedAppsPane.getChildren()));
+        pinnedAppsPane.managedProperty().bind(pinnedAppsPane.visibleProperty());
 
-        // Separates the pinned apps from the search bar
-        Region separator = new Region();
-        separator.setPrefHeight(1);
-        separator.setMaxWidth(Double.MAX_VALUE);
-        separator.getStyleClass().add("separator");
+        IconButton fileBrowserButton = new IconButton(Icon.FOLDER.sized(20));
+        fileBrowserButton.setOnAction(e ->
+        {   CommandHelper.openFileBrowser();
+            this.hide();
+        });
+        IconButton terminalButton = new IconButton(Icon.TERMINAL.sized(20));
+        terminalButton.setOnAction(e ->
+        {   CommandHelper.openTerminal();
+            this.hide();
+        });
+        this.actionButtons = List.of(fileBrowserButton, terminalButton);
+        actionButtons.forEach(btn -> btn.setOnMouseEntered(e -> this.onMouseEnteredAction(btn)));
 
-        HBox searchBox = new HBox(6);
+        HBox actionsPane = new HBox(4);
+        actionsPane.getChildren().addAll(actionButtons);
+        actionsPane.setAlignment(Pos.CENTER_LEFT);
+        actionsPane.getStyleClass().add("launcher-actions");
+
+        HBox searchBox = new HBox();
         searchBox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(searchBox, Priority.ALWAYS);
         searchBox.getStyleClass().add("search-box");
         // Icon
         Group searchIcon = Icon.SEARCH.sized(18).get();
@@ -99,7 +117,12 @@ public class AppLauncherWidget extends PopupWidget
         });
         searchBox.getChildren().addAll(searchIcon, searchField);
 
+        HBox searchArea = new HBox(8);
+        searchArea.setAlignment(Pos.CENTER_LEFT);
+        searchArea.getChildren().addAll(searchBox, actionsPane);
+
         this.appEntriesPane = new ScrollPane();
+        appEntriesPane.getStyleClass().add("apps-scroll");
         appEntriesPane.setContent(this.appsList);
         appEntriesPane.setFitToWidth(true);
         appEntriesPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -108,14 +131,13 @@ public class AppLauncherWidget extends PopupWidget
         appEntriesPane.addEventFilter(ScrollEvent.SCROLL, e -> mouseInteractionEnabled = true);
         this.scroller = SmoothScroller.of(appEntriesPane);
         appEntriesPane.setMinHeight(0);
-        appEntriesPane.setPadding(new Insets(0, -4, 0, 0));
         VBox.setVgrow(appEntriesPane, Priority.ALWAYS);
 
         pinnedAppsPane.setMinHeight(Region.USE_PREF_SIZE);
-        separator.setMinHeight(Region.USE_PREF_SIZE);
+        actionsPane.setMinHeight(Region.USE_PREF_SIZE);
         searchBox.setMinHeight(Region.USE_PREF_SIZE);
 
-        root.getChildren().addAll(pinnedAppsPane, separator, searchBox, appEntriesPane);
+        root.getChildren().addAll(pinnedAppsPane, searchArea, appEntriesPane);
 
         Scene scene = new Scene(root, 500, 600);
         scene.setFill(Color.TRANSPARENT);
@@ -309,7 +331,8 @@ public class AppLauncherWidget extends PopupWidget
             case APPS ->
             {
                 this.clearPinnedSelection();
-                if (prev == Section.PINNED) selectedAppIndex = -1;
+                this.clearActionSelection();
+                if (prev == Section.PINNED || prev == Section.ACTIONS) selectedAppIndex = -1;
                 List<Node> visible = this.getVisibleEntries();
                 if (visible.isEmpty())
                 {   return;
@@ -320,10 +343,19 @@ public class AppLauncherWidget extends PopupWidget
             {
                 if (prev != Section.PINNED)
                 {   this.clearSelection();
+                    this.clearActionSelection();
                     List<PinnedAppButton> pinned = this.getPinnedButtons();
                     if (!pinned.isEmpty())
                     {   this.setHoveredPinnedIndex(0);
                     }
+                }
+            }
+            case ACTIONS ->
+            {
+                if (prev != Section.ACTIONS)
+                {   this.clearSelection();
+                    this.clearPinnedSelection();
+                    this.setHoveredActionIndex(0);
                 }
             }
         }
@@ -378,6 +410,19 @@ public class AppLauncherWidget extends PopupWidget
         }
     }
 
+    private void clearActionSelection()
+    {   actionButtons.forEach(btn -> btn.setSelected(false));
+    }
+
+    private void setHoveredActionIndex(int index)
+    {
+        this.clearActionSelection();
+        selectedAppIndex = index;
+        if (index >= 0 && index < actionButtons.size())
+        {   actionButtons.get(index).setSelected(true);
+        }
+    }
+
     private List<Node> getVisibleEntries()
     {
         if (appsList == null) return List.of();
@@ -421,8 +466,9 @@ public class AppLauncherWidget extends PopupWidget
         if (!mouseInteractionEnabled) return;
         if (activeSection != Section.APPS)
         {
-            if (activeSection == Section.PINNED) selectedAppIndex = -1;
+            if (activeSection == Section.PINNED || activeSection == Section.ACTIONS) selectedAppIndex = -1;
             clearPinnedSelection();
+            clearActionSelection();
             activeSection = Section.APPS;
         }
         List<Node> visible = this.getVisibleEntries();
@@ -445,6 +491,13 @@ public class AppLauncherWidget extends PopupWidget
         }
     }
 
+    private void onMouseEnteredAction(IconButton button)
+    {
+        if (!mouseInteractionEnabled) return;
+        this.setSection(Section.ACTIONS);
+        this.setHoveredActionIndex(actionButtons.indexOf(button));
+    }
+
     public void onMouseExitedAppButton(AppButton entry)
     {
     }
@@ -465,6 +518,7 @@ public class AppLauncherWidget extends PopupWidget
         switch (activeSection)
         {
             case APPS -> handleKeyEntries(key);
+            case ACTIONS -> handleKeyActions(key);
             case PINNED -> handleKeyPinned(key);
         }
     }
@@ -482,7 +536,7 @@ public class AppLauncherWidget extends PopupWidget
                     this.setHoveredAppIndex(selectedAppIndex - 1);
                 }
                 else
-                {   this.setSection(Section.PINNED);
+                {   this.setSection(Section.ACTIONS);
                 }
             }
             case DOWN ->
@@ -500,12 +554,45 @@ public class AppLauncherWidget extends PopupWidget
         }
     }
 
+    private void handleKeyActions(X11Key key)
+    {
+        switch (key)
+        {
+            case ESCAPE -> this.hide();
+            case DOWN   -> this.setSection(Section.APPS);
+            case UP     ->
+            {
+                if (!this.getPinnedButtons().isEmpty())
+                {   this.setSection(Section.PINNED);
+                }
+            }
+            case RETURN ->
+            {
+                if (selectedAppIndex >= 0 && selectedAppIndex < actionButtons.size())
+                {   actionButtons.get(selectedAppIndex).fire();
+                }
+            }
+            case LEFT   ->
+            {
+                if (selectedAppIndex > 0)
+                {   setHoveredActionIndex(selectedAppIndex - 1);
+                }
+            }
+            case RIGHT  ->
+            {
+                if (selectedAppIndex < actionButtons.size() - 1)
+                {   setHoveredActionIndex(selectedAppIndex + 1);
+                }
+            }
+        }
+    }
+
     private void handleKeyPinned(X11Key key)
     {
         switch (key)
         {
             case ESCAPE   -> this.hide();
-            case DOWN     -> this.setSection(Section.APPS);
+            case DOWN     -> this.setSection(Section.ACTIONS);
             case RETURN   ->
             {
                 List<PinnedAppButton> pinned = getPinnedButtons();
@@ -596,6 +683,7 @@ public class AppLauncherWidget extends PopupWidget
             stage.hide();
             this.searchField.clear();
             this.clearSelection();
+            this.clearActionSelection();
             this.activeSection = null;
         });
     }

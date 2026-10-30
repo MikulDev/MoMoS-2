@@ -20,6 +20,7 @@ public record Icon(String name, int size, Color color) implements Supplier<Group
     public static final Icon UNPIN = new Icon("unpin", 16);
     public static final Icon REFRESH = new Icon("refresh", 16);
     public static final Icon SEARCH = new Icon("search", 16);
+    public static final Icon TERMINAL = new Icon("terminal", 16);
     public static final Icon UPDATE = new Icon("update", 16);
     public static final Icon UPDATE_ALL = new Icon("update_all", 16);
 

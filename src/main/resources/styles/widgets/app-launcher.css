@@ -1,19 +1,66 @@
 .app-launcher {
-    -fx-background-color: -momos-pitch-black-dd;
+    -fx-background-color: -momos-pitch-black-bb;
     -fx-background-radius: 15px;
     -fx-border-color: -momos-gray;
-    -fx-border-width: 1px;
+    -fx-border-width: 1.5px;
     -fx-border-radius: 15px;
-    -fx-padding: 16px;
+    -fx-padding: 8px;
+    -fx-spacing: 12px;
+}
+
+/* Pinned apps header */
+.pinned-apps {
+    -fx-background-color: -momos-dark-gray-aa;
+    -fx-background-radius: 8px;
+    -fx-border-color: linear-gradient(to bottom, rgba(159, 159, 159, 0.267), rgba(159, 159, 159, 0.1));
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-padding: 8px;
+    -fx-spacing: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 8, 0.5, 0, 1);
+}
+
+/* Pinned app buttons */
+.pinned-apps .image-button {
+    -fx-background-color: -momos-gray-55;
+    -fx-border-color: linear-gradient(to bottom, -momos-white-44, rgba(159, 159, 159, 0.2));
+}
+
+.pinned-apps .image-button:hover,
+.pinned-apps .image-button:selected {
+    -fx-background-color: rgba(89, 89, 89, 0.667);
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* File browser and terminal buttons, styled after the notifications' clear button */
+.launcher-actions .image-button {
+    -fx-background-color: -momos-gray-55;
+    -fx-border-color: rgba(159, 159, 159, 0.2);
+    -fx-padding: 5px;
+}
+
+.launcher-actions .image-button:hover,
+.launcher-actions .image-button:selected {
+    -fx-background-color: rgba(89, 89, 89, 0.667);
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+}
+
+.launcher-actions .image-button .icon {
+    -fx-opacity: 0.5;
+}
+
+.launcher-actions .image-button:hover .icon,
+.launcher-actions .image-button:selected .icon {
+    -fx-opacity: 1;
 }
 
 .search-box {
-    -fx-background-color: -momos-pitch-black-80;
+    -fx-background-color: -momos-dark-gray-66;
     -fx-background-radius: 12px;
-    -fx-border-color: -momos-gray;
-    -fx-border-width: 1px;
+    -fx-border-color: linear-gradient(to bottom, -momos-gray-40, -momos-gray-dd);
+    -fx-border-width: 1.5px;
     -fx-border-radius: 12px;
-    -fx-padding: 5px 7px;
+    -fx-padding: 5px 10px;
 }
 
 .search-box.focused {
@@ -26,17 +73,29 @@
 
 .search-field {
     -fx-background-color: transparent;
-    -fx-text-fill: -momos-white-aa;
-    -fx-prompt-text-fill: -momos-light-gray-b0;
+    -fx-text-fill: -momos-white-dd;
+    -fx-prompt-text-fill: -momos-white-88;
     -fx-font-size: 14px;
 }
 
 .apps-list {
-    -fx-padding: 0 6px 0 0;
+    -fx-padding: 12px;
+    -fx-spacing: 8px;
 }
 
-.app-launcher .scroll-bar {
-    -fx-padding: 0 2px;
+/* On the viewport rather than the list, so it stays put while scrolling and leaves out the scroll bar */
+.apps-scroll > .viewport {
+    -fx-background-color: -momos-pitch-black-bb;
+    -fx-background-radius: 8px;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+}
+
+/* The left padding is the gap between the list and the track, so the width grows with it to keep the track 9px wide */
+.app-launcher .scroll-bar:vertical {
+    -fx-padding: 0 3px 0 9px;
+    -fx-pref-width: 21px;
 }
 
 /* Section headers */
@@ -49,17 +108,17 @@
 /* App entry row */
 .app-entry {
     -fx-background-color: -momos-dark-gray-dd;
-    -fx-background-radius: 8px;
-    -fx-border-color: -momos-light-gray-33;
-    -fx-border-width: 1px;
-    -fx-border-radius: 8px;
+    -fx-background-radius: 6px;
+    -fx-border-color: linear-gradient(to bottom, -momos-light-gray-33, rgba(159, 159, 159, 0.1));
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 6px;
     -fx-padding: 8px 12px;
     -fx-cursor: hand;
 }
 
 .app-entry:selected {
-    -fx-background-color: -momos-gray-88;
-    -fx-border-color: -momos-white-55;
+    -fx-background-color: -momos-gray-55;
+    -fx-border-color: -momos-white-33;
 }
 
 .app-entry-name {
@@ -76,27 +135,22 @@
 }
 
 .app-entry-button {
-    -fx-background-color: -momos-dark-gray-cc;
-    -fx-background-radius: 8px;
-    -fx-background-insets: 1px;
-    -fx-border-color: -momos-light-gray-33;
-    -fx-border-width: 1px;
-    -fx-border-radius: 8px;
+    -fx-background-color: -momos-gray-55;
+    -fx-background-radius: 6px;
+    -fx-border-color: rgba(159, 159, 159, 0.2);
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 6px;
     -fx-padding: 4px;
     -fx-cursor: hand;
+}
+
+.app-entry-button:hover {
+    -fx-background-color: rgba(89, 89, 89, 0.667);
+    -fx-border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Sudo mode styling */
 .app-entry.sudo-mode {
     -fx-background-color: -momos-sudo-bg;
     -fx-border-color: -momos-sudo-border;
-}
-
-
-.separator {
-    -fx-background-color: -momos-white-20;
-    -fx-pref-height: 1px;
-    -fx-max-height: 1px;
-    -fx-min-height: 1px;
-    -fx-margin: 8px 0;
 }

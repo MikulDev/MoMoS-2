@@ -1,5 +1,7 @@
 package com.momosoftworks.momos.util.wm;
 
+import com.google.gson.JsonElement;
+import com.momosoftworks.momos.MomosApp;
 import com.momosoftworks.momos.widget.app_launcher.Application;
 
 import java.io.BufferedReader;
@@ -8,6 +10,8 @@ import java.io.InputStreamReader;
 
 public class CommandHelper
 {
+    private static final String DEFAULT_TERMINAL = "alacritty";
+
     public static void execute(String... command)
     {
         try
@@ -44,10 +48,31 @@ public class CommandHelper
     }
 
     public static void launchProgram(Application app)
+    {   launchDetached("gio", "launch", app.path());
+    }
+
+    /** Opens the home directory in the default file browser. */
+    public static void openFileBrowser()
+    {   launchDetached("xdg-open", System.getenv("HOME"));
+    }
+
+    public static void openTerminal()
+    {   launchDetached(getTerminal());
+    }
+
+    /** The terminal emulator to use. Set with "terminal" in the config file. */
+    public static String getTerminal()
+    {
+        JsonElement terminal = MomosApp.getConfigSetting("terminal");
+        return terminal != null && terminal.isJsonPrimitive() ? terminal.getAsString() : DEFAULT_TERMINAL;
+    }
+
+    /** Starts a program from the home directory, discarding its output. */
+    private static void launchDetached(String... command)
     {
         try
         {
-            new ProcessBuilder("gio", "launch", app.path())
+            new ProcessBuilder(command)
                     .directory(new File(System.getenv("HOME")))
                     .redirectOutput(ProcessBuilder.Redirect.DISCARD)
                     .redirectError(ProcessBuilder.Redirect.DISCARD)

@@ -1,7 +1,6 @@
 package com.momosoftworks.momos.widget.updates;
 
-import com.google.gson.JsonElement;
-import com.momosoftworks.momos.MomosApp;
+import com.momosoftworks.momos.util.wm.CommandHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 /** Checks for and installs package updates through checkupdates and yay. Every method here blocks. */
 public class PackageManager
 {
-    private static final String DEFAULT_TERMINAL = "alacritty";
     private static final long STATUS_POLL_INTERVAL_MS = 500;
 
     // Terminals don't reliably exit with their command's exit code, so the script writes it to a file for us.
@@ -72,7 +70,7 @@ public class PackageManager
         try
         {
             statusFile = Files.createTempFile("momos-update", ".status");
-            List<String> args = new ArrayList<>(List.of(getTerminal(), "-e", "sh", "-c", TERMINAL_SCRIPT, "momos-update", statusFile.toString()));
+            List<String> args = new ArrayList<>(List.of(CommandHelper.getTerminal(), "-e", "sh", "-c", TERMINAL_SCRIPT, "momos-update", statusFile.toString()));
             args.addAll(List.of(command));
             Process terminal = new ProcessBuilder(args)
                     .redirectOutput(ProcessBuilder.Redirect.DISCARD)
@@ -101,13 +99,6 @@ public class PackageManager
                 catch (IOException ignored) {}
             }
         }
-    }
-
-    /** The terminal emulator to run updates in. Set with "terminal" in the config file. */
-    private static String getTerminal()
-    {
-        JsonElement terminal = MomosApp.getConfigSetting("terminal");
-        return terminal != null && terminal.isJsonPrimitive() ? terminal.getAsString() : DEFAULT_TERMINAL;
     }
 
     private static Result run(String... command) throws IOException, InterruptedException

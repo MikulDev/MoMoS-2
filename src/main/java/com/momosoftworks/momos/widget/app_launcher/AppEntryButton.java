@@ -40,7 +40,7 @@ public class AppEntryButton extends AppButton
         optionsPane.setAlignment(Pos.CENTER_RIGHT);
         optionsPane.getStyleClass().add("app-entry-options");
         // Pin button
-        IconButton pinButton = new IconButton(Icon.PIN.sized(24));
+        IconButton pinButton = new IconButton(Icon.PIN.sized(18));
         pinButton.getStyleClass().add("app-entry-button");
         pinButton.setOnAction(e -> this.parent.pinApp(app));
         optionsPane.getChildren().add(pinButton);
