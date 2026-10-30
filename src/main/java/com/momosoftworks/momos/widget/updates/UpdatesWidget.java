@@ -25,8 +25,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -76,7 +75,7 @@ public class UpdatesWidget extends PopupWidget
     });
     private Timeline checkTimer;
 
-    private Label countLabel;
+    private Label title;
     private IconButton updateAllButton;
     private IconButton refreshButton;
     private VBox entries;
@@ -99,23 +98,26 @@ public class UpdatesWidget extends PopupWidget
     @Override
     public Stage initStage(Stage stage)
     {
-        this.countLabel = new Label();
-        countLabel.getStyleClass().add("updates-count");
+        this.title = new Label("Packages");
+        title.getStyleClass().add("updates-title");
 
         this.updateAllButton = new IconButton(Icon.UPDATE_ALL.sized(20));
         updateAllButton.setOnAction(e -> this.updateAll());
         this.refreshButton = new IconButton(Icon.REFRESH.sized(20));
         refreshButton.setOnAction(e -> this.checkForUpdates());
 
-        BorderPane header = new BorderPane(countLabel, null, refreshButton, null, updateAllButton);
+        Node pkgIcon = Icon.PACKAGE.sized(20).colored(Color.GRAY).get();
+        Region headerSpacer = new Region();
+        HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+        HBox header = new HBox(pkgIcon, title, headerSpacer, updateAllButton, refreshButton);
         header.getStyleClass().add("updates-header");
-        BorderPane.setAlignment(updateAllButton, Pos.CENTER_LEFT);
-        BorderPane.setAlignment(refreshButton, Pos.CENTER_RIGHT);
+        header.setAlignment(Pos.CENTER_LEFT);
 
         this.entries = new VBox(5);
         entries.getStyleClass().add("updates-list");
 
         this.entriesPane = new ScrollPane(entries);
+        entriesPane.getStyleClass().add("updates-scroll");
         entriesPane.setFitToWidth(true);
         entriesPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         entriesPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -270,18 +272,13 @@ public class UpdatesWidget extends PopupWidget
 
     /* View */
 
-    /** Brings the header, buttons and count in line with the current state. */
+    /** Brings the buttons and count in line with the current state. */
     private void refreshView()
     {
         count.set(packages.size());
-        countLabel.setText(switch (packages.size())
-        {
-            case 0 -> checking ? "Checking for updates..." : "No updates available";
-            case 1 -> "1 package available";
-            default -> packages.size() + " packages available";
-        });
 
         updateAllButton.setVisible(!packages.isEmpty());
+        updateAllButton.setManaged(!packages.isEmpty());
         updateAllButton.setDisable(systemUpdating || !statuses.isEmpty());
         refreshButton.setDisable(checking);
         for (Node node : entries.getChildren())

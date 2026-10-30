@@ -1,26 +1,38 @@
 .updates {
-    -fx-background-color: -momos-pitch-black-dd;
+    -fx-background-color: -momos-pitch-black-bb;
     -fx-background-radius: 15px;
     -fx-border-color: -momos-gray;
-    -fx-border-width: 1px;
+    -fx-border-width: 1.5px;
     -fx-border-radius: 15px;
-    -fx-padding: 12px;
+    -fx-padding: 8px;
 }
 
-.updates-count {
+.updates-header {
+    -fx-background-color: -momos-dark-gray-aa;
+    -fx-background-radius: 8px;
+    -fx-border-color: linear-gradient(to bottom, rgba(159, 159, 159, 0.267), rgba(159, 159, 159, 0.1));
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-padding: 8px 8px 8px 12px;
+    -fx-spacing: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 8, 0.5, 0, 1);
+}
+
+.updates-title {
     -fx-text-fill: -momos-white-aa;
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
+    -fx-padding: 4px 2px;
 }
 
 /* Header buttons and per-package update buttons */
 .updates .image-button {
-    -fx-background-color: -momos-dark-gray-aa;
-    -fx-border-color: rgba(159, 159, 159, 0.267);
+    -fx-background-color: -momos-gray-55;
+    -fx-border-color: rgba(159, 159, 159, 0.2);
 }
 
 .updates .image-button:hover {
     -fx-background-color: rgba(89, 89, 89, 0.667);
-    -fx-border-color: rgba(255, 255, 255, 0.4);
+    -fx-border-color: rgba(255, 255, 255, 0.3);
 }
 
 .updates .image-button .icon {
@@ -32,26 +44,38 @@
 }
 
 .updates-list {
-    -fx-padding: 0 6px 0 0;
+    -fx-padding: 12px;
+    -fx-spacing: 12px;
 }
 
-.updates .scroll-bar {
-    -fx-padding: 0 2px;
+/* On the viewport rather than the list, so it stays put while scrolling and leaves out the scroll bar */
+.updates-scroll > .viewport {
+    -fx-background-color: -momos-pitch-black-bb;
+    -fx-background-radius: 8px;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+}
+
+/* The left padding is the gap between the list and the track, so the width grows with it to keep the track 9px wide */
+.updates .scroll-bar:vertical {
+    -fx-padding: 0 3px 0 9px;
+    -fx-pref-width: 21px;
 }
 
 /* Package rows */
 .update-entry {
-    -fx-background-color: -momos-pitch-black-55;
-    -fx-background-radius: 4px;
-    -fx-border-color: -momos-light-gray-33;
-    -fx-border-width: 1px;
-    -fx-border-radius: 4px;
+    -fx-background-color: -momos-dark-gray-dd;
+    -fx-background-radius: 6px;
+    -fx-border-color: linear-gradient(to bottom, -momos-light-gray-33, rgba(159, 159, 159, 0.1));
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 6px;
     -fx-padding: 6px 6px 6px 10px;
 }
 
 .update-entry:hover {
     -fx-background-color: -momos-dark-gray-dd;
-    -fx-border-color: -momos-white-55;
+    -fx-border-color: -momos-white-33;
 }
 
 .update-entry-name {
